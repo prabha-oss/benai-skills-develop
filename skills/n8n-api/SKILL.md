@@ -59,6 +59,21 @@ After user provides values, update `.env` with the values using the Edit tool.
 
 ---
 
+## API Methods Reference
+
+**CRITICAL**: The n8n API uses specific HTTP methods:
+
+| Operation | Method | Endpoint |
+|-----------|--------|----------|
+| List/Get | GET | `/api/v1/workflows` |
+| Create | POST | `/api/v1/workflows` |
+| Update | **PUT** (not PATCH!) | `/api/v1/workflows/{id}` |
+| Delete | DELETE | `/api/v1/workflows/{id}` |
+| Activate | **POST** | `/api/v1/workflows/{id}/activate` |
+| Deactivate | **POST** | `/api/v1/workflows/{id}/deactivate` |
+
+---
+
 ## API Call Format
 
 **IMPORTANT**: Always use this exact format for API calls to avoid encoding issues:
@@ -67,7 +82,7 @@ After user provides values, update `.env` with the values using the Edit tool.
 export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}"
 ```
 
-For POST/PATCH/DELETE requests, add the method and data:
+For POST/PUT/DELETE requests, add the method and data:
 
 ```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d 'JSON_DATA'
@@ -109,14 +124,21 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/vari
 
 ### List Executions
 
+**IMPORTANT**: Always use `?limit=` to fetch only recent executions. Never fetch all.
+
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=2" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-### Get Execution by ID
+Filter by workflow:
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?workflowId={WORKFLOW_ID}&limit=2" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+```
+
+### Get Execution by ID (with error details)
 
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
 ---
@@ -134,13 +156,16 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 }' | jq .
 ```
 
-### Update Workflow
+### Update Workflow (USE PUT, NOT PATCH!)
+
+**CRITICAL**: Use PUT method, not PATCH. PATCH will return "method not allowed".
 
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PUT "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
   "name": "Updated Name",
   "nodes": [],
-  "connections": {}
+  "connections": {},
+  "settings": {"executionOrder": "v1"}
 }' | jq .
 ```
 
@@ -150,16 +175,18 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/ap
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X DELETE "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-### Activate Workflow
+### Activate Workflow (USE DEDICATED ENDPOINT!)
+
+**CRITICAL**: Use the dedicated activate endpoint, NOT PUT with `{"active": true}`.
 
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"active": true}' | jq .
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/activate" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
 ### Deactivate Workflow
 
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"active": false}' | jq .
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/deactivate" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
 ### Create Tag
@@ -184,21 +211,124 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X DELETE "${N8N_API_URL}/a
 
 ## Workflow Execution
 
-### Execute Workflow via Webhook
+### CRITICAL: How to Execute Workflows via API
 
-For workflows with webhook triggers:
+**You CANNOT execute Manual Trigger workflows via API.** The n8n REST API does not support:
+- `POST /api/v1/workflows/{id}/run` (does not exist)
+- `POST /api/v1/executions` (does not exist)
+
+**To execute a workflow via API, you MUST:**
+1. Add a **Webhook trigger** node to the workflow
+2. **Activate** the workflow using `POST /api/v1/workflows/{id}/activate`
+3. Call the webhook URL
+
+### Adding a Webhook Trigger for API Execution
+
+When creating a workflow that needs API execution, include a webhook node:
+
+```json
+{
+  "id": "webhook-trigger",
+  "name": "Webhook",
+  "type": "n8n-nodes-base.webhook",
+  "typeVersion": 2,
+  "position": [250, 300],
+  "parameters": {
+    "path": "my-webhook-path",
+    "httpMethod": "POST",
+    "responseMode": "lastNode"
+  },
+  "webhookId": "unique-webhook-id"
+}
+```
+
+### Execute Workflow via Webhook (Production)
+
+**Requirements**: Workflow must be ACTIVATED first.
 
 ```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"key": "value"}' | jq .
 ```
 
-### Execute Workflow via Test Webhook
+### Execute Workflow via Test Webhook (Development)
 
-For testing webhook workflows (requires workflow to be open in n8n):
+**Requirements**: Workflow must be OPEN in n8n UI with "Listening for test events".
 
 ```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook-test/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"key": "value"}' | jq .
 ```
+
+### Execution Flow for API-Triggered Workflows
+
+1. Create workflow with webhook trigger
+2. Activate: `POST /api/v1/workflows/{id}/activate`
+3. Execute: `POST /webhook/{path}`
+4. Check result: `GET /api/v1/executions?limit=1`
+
+---
+
+## Nodes Requiring Manual UI Configuration
+
+**IMPORTANT**: Some nodes CANNOT be fully configured via API and require the user to complete setup in the n8n UI.
+
+### Google Sheets Node
+
+The Google Sheets node uses OAuth-based document picker. You CANNOT set `documentId` or `sheetName` via API with valid values.
+
+**What to do:**
+1. Create the workflow with the Google Sheets node
+2. Set `documentId` and `sheetName` to placeholder objects (see below)
+3. **Tell the user** they must open the workflow in n8n and select the spreadsheet manually
+
+**Placeholder configuration (will cause WorkflowHasIssuesError if executed):**
+```json
+{
+  "parameters": {
+    "operation": "append",
+    "documentId": {
+      "__rl": true,
+      "mode": "list",
+      "value": ""
+    },
+    "sheetName": {
+      "__rl": true,
+      "mode": "list",
+      "value": ""
+    },
+    "columns": {
+      "mappingMode": "autoMapInputData",
+      "value": {}
+    }
+  }
+}
+```
+
+**If user provides a spreadsheet URL**, extract the ID and use:
+```json
+{
+  "documentId": {
+    "__rl": true,
+    "mode": "id",
+    "value": "SPREADSHEET_ID_FROM_URL"
+  },
+  "sheetName": {
+    "__rl": true,
+    "mode": "name",
+    "value": "Sheet1"
+  }
+}
+```
+
+### Other Nodes Requiring UI Configuration
+
+| Node | Reason | Solution |
+|------|--------|----------|
+| Google Sheets | OAuth document picker | Ask user for spreadsheet ID/URL or manual UI selection |
+| Google Drive | OAuth file picker | Ask user for file/folder ID or manual UI selection |
+| Notion | Database picker | Ask user for database ID or manual UI selection |
+| Airtable | Base/Table picker | Ask user for base and table IDs |
+
+**Always inform the user** when a workflow requires manual configuration in the n8n UI.
 
 ---
 
@@ -260,6 +390,34 @@ When creating or updating workflows, use this structure:
 
 ---
 
+## Common Pitfalls (AVOID THESE!)
+
+### 1. Using PATCH instead of PUT for updates
+- **Wrong**: `curl -X PATCH /api/v1/workflows/{id}`
+- **Right**: `curl -X PUT /api/v1/workflows/{id}`
+
+### 2. Trying to activate with PUT
+- **Wrong**: `curl -X PUT /api/v1/workflows/{id} -d '{"active": true}'`
+- **Right**: `curl -X POST /api/v1/workflows/{id}/activate`
+
+### 3. Trying to execute Manual Trigger workflows via API
+- **Wrong**: Expecting `POST /api/v1/workflows/{id}/run` to exist
+- **Right**: Add a webhook trigger, activate workflow, call webhook URL
+
+### 4. Leaving Google Sheets documentId empty and trying to execute
+- **Wrong**: Creating workflow with empty `documentId.value` and executing
+- **Right**: Either get spreadsheet ID from user, or warn them to configure in UI
+
+### 5. Executing webhook before activating workflow
+- **Wrong**: `POST /webhook/path` on inactive workflow
+- **Right**: First `POST /api/v1/workflows/{id}/activate`, then `POST /webhook/path`
+
+### 6. Fetching all executions when debugging
+- **Wrong**: `GET /api/v1/executions` (fetches everything, overwhelming)
+- **Right**: `GET /api/v1/executions?limit=2` (only recent, focused context)
+
+---
+
 ## Best Practices
 
 ### Creating Workflows
@@ -268,6 +426,7 @@ When creating or updating workflows, use this structure:
 2. **Use proper positioning**: Start at [250, 300], space nodes ~200px apart
 3. **Set executionOrder to "v1"**: Modern execution order
 4. **Add error handling**: Include error outputs where appropriate
+5. **Always include webhook trigger** if the user wants to run via API
 
 ### Node Naming
 
@@ -294,33 +453,95 @@ When creating or updating workflows, use this structure:
 | 404 | Not found | Check workflow/execution ID exists |
 | 400 | Bad request | Validate JSON structure |
 | 409 | Conflict | Workflow name may be duplicate |
+| "method not allowed" | Wrong HTTP method | Use PUT for updates, POST for activate |
 
-### Debugging Tips
+### WorkflowHasIssuesError
 
-1. Check `.env` values are correct (no trailing slash on URL)
-2. Ensure API key has appropriate permissions
-3. Verify n8n instance is running and accessible
-4. Use `| jq .` to format JSON responses
+If execution fails with `WorkflowHasIssuesError`:
+1. Check for nodes with incomplete configuration (empty required fields)
+2. Common cause: Google Sheets without documentId selected
+3. User must open workflow in n8n UI to complete configuration
+
+### Debugging Execution Errors
+
+**IMPORTANT**: When debugging, always fetch only the **most recent 1-2 executions**, not all. This keeps context focused and relevant.
+
+**List recent executions (limit to 2):**
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=2" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[] | {id, status, startedAt, workflowId}'
+```
+
+**Get error details from most recent execution:**
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.error'
+```
 
 ---
 
 ## Integration with Other Skills
 
-**For credentials in new nodes**:
--> Use the `benai-skills:n8n-credentials` skill to get credential references from the template
+### Using the Credentials Template
+
+**IMPORTANT**: When creating workflows, use the `benai-skills:n8n-credentials` skill to fetch the credentials template. Copy the **FULL node configuration** from template nodes, not just credentials.
+
+**What to copy from template nodes:**
+1. `credentials` - The credential references (id, name)
+2. `parameters` - All node parameters (resource, operation, settings, etc.)
+3. `typeVersion` - The exact version used in the template
+
+**Example - Creating a Slack node from template:**
+
+First, fetch template and find the Slack node:
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{TEMPLATE_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.type | contains("slack"))'
+```
+
+Then use the **entire node configuration** as your base:
+```json
+{
+  "id": "new-unique-id",
+  "name": "Send Slack Message",
+  "type": "n8n-nodes-base.slack",
+  "typeVersion": 2.2,
+  "position": [450, 300],
+  "parameters": {
+    // COPY ALL PARAMETERS FROM TEMPLATE NODE
+    "resource": "message",
+    "operation": "post",
+    "channel": "#general",
+    // ... all other parameters from template
+  },
+  "credentials": {
+    // COPY CREDENTIALS FROM TEMPLATE NODE
+    "slackApi": {
+      "id": "from-template",
+      "name": "from-template"
+    }
+  }
+}
+```
+
+**Why copy full configuration?**
+- Template nodes have tested, working configurations
+- Ensures correct `typeVersion` compatibility
+- Includes all required parameters with valid values
+- Prevents "missing required field" errors
 
 ---
 
 ## Quick Reference
 
-This skill handles ALL n8n operations:
-- List/Get workflows
-- Create/Update/Delete workflows
-- Activate/Deactivate workflows
-- List/Get executions
-- Execute workflows via webhook
-- Manage tags
-- Manage variables
-- Source control operations
+| Operation | Method | Endpoint |
+|-----------|--------|----------|
+| List workflows | GET | `/api/v1/workflows` |
+| Get workflow | GET | `/api/v1/workflows/{id}` |
+| Create workflow | POST | `/api/v1/workflows` |
+| Update workflow | **PUT** | `/api/v1/workflows/{id}` |
+| Delete workflow | DELETE | `/api/v1/workflows/{id}` |
+| Activate workflow | **POST** | `/api/v1/workflows/{id}/activate` |
+| Deactivate workflow | **POST** | `/api/v1/workflows/{id}/deactivate` |
+| List executions | GET | `/api/v1/executions` |
+| Get execution | GET | `/api/v1/executions/{id}?includeData=true` |
+| Execute via webhook | POST | `/webhook/{path}` (workflow must be active) |
 
 Always read `.env` first to get `N8N_API_URL` and `N8N_API_KEY`.

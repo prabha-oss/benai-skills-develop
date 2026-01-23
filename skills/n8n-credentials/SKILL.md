@@ -1,11 +1,25 @@
 ---
 name: n8n-credentials
-description: Credential management via template workflow. Use when you need to get credentials for new nodes or list available credentials from the template.
+description: Get full node configurations (credentials + parameters) from template workflow. Use when creating new workflows to copy working node setups.
 ---
 
 # n8n-credentials Skill
 
-**Purpose**: Credential management via template workflow - extract and apply credentials to new nodes
+**Purpose**: Extract FULL node configurations from template workflow - credentials AND all parameters
+
+---
+
+## CRITICAL: Copy Full Configuration, Not Just Credentials
+
+**IMPORTANT**: When using template nodes, you MUST copy the **ENTIRE node configuration**, not just credentials:
+
+| What to Copy | Why |
+|--------------|-----|
+| `credentials` | Authentication for the service |
+| `parameters` | All settings (resource, operation, options, etc.) |
+| `typeVersion` | Ensures compatibility with your n8n version |
+
+**Template nodes contain tested, working configurations. Use them as your base.**
 
 ---
 
@@ -90,11 +104,11 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/ENDP
 
 ## What is a Credentials Template?
 
-A **Credentials Template** is a workflow you create in n8n that contains nodes with all your configured credentials. This allows the skill to:
+A **Credentials Template** is a workflow you create in n8n that contains nodes with all your configured credentials AND working parameters. This allows the skill to:
 
 1. Fetch the template workflow
-2. Extract credential references from nodes
-3. Apply those credentials to new workflows
+2. Extract **full node configurations** (credentials + parameters + typeVersion)
+3. Apply those configurations to new workflows
 
 ### Example Template Workflow Structure
 
@@ -106,100 +120,115 @@ Create a workflow in n8n with nodes for each service you use:
   Slack API    Google OAuth2           API Key Auth         OpenAI API
 ```
 
-Each node should have credentials configured. The template doesn't need to be active or do anything - it's just a credential reference.
+**Each node should have:**
+- Credentials configured
+- Parameters set to common/default values you use
+- The template doesn't need to be active
 
 ---
 
 ## Operations
 
-### 1. Fetch Credentials Template
+### 1. Fetch Template and Get Full Node Configuration
 
 First, extract the workflow ID from `N8N_CREDENTIALS_TEMPLATE_URL` (the last path segment of the URL).
 
-Then fetch the template workflow:
+**Fetch specific node type with FULL configuration:**
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.type | contains("slack"))'
+```
+
+**Fetch all nodes with credentials:**
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.credentials != null)'
+```
+
+### 2. List Available Node Configurations
+
+After fetching the template, present available nodes to user:
+
+```
+Available Node Configurations from Template:
+
+| Node Type | Node Name | Has Credentials |
+|-----------|-----------|-----------------|
+| n8n-nodes-base.slack | Slack | slackApi ✓ |
+| n8n-nodes-base.googleSheets | Google Sheets | googleSheetsOAuth2Api ✓ |
+| @apify/n8n-nodes-apify.apify | Apify | apifyApi ✓ |
+| n8n-nodes-base.openAi | OpenAI | openAiApi ✓ |
+```
+
+### 3. Extract Full Node Configuration for Reuse
+
+**CRITICAL**: Extract the ENTIRE node object, not just credentials:
 
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.type == "n8n-nodes-base.slack") | {type, typeVersion, parameters, credentials}'
 ```
 
-### 2. List Available Credentials
-
-After fetching the template, parse the nodes to list available credentials.
-
-From the JSON response, look at the `nodes` array and extract credentials:
-
-```javascript
-// Parse the template response
-const template = response;
-const credentials = {};
-
-template.nodes.forEach(node => {
-  if (node.credentials) {
-    Object.entries(node.credentials).forEach(([credType, credRef]) => {
-      credentials[node.type] = {
-        type: credType,
-        id: credRef.id,
-        name: credRef.name
-      };
-    });
-  }
-});
-```
-
-Present to user:
-```
-Available Credentials from Template:
-
-| Node Type | Credential Type | Credential Name |
-|-----------|-----------------|-----------------|
-| n8n-nodes-base.slack | slackApi | Slack Production |
-| n8n-nodes-base.googleSheets | googleSheetsOAuth2Api | Google Workspace |
-| n8n-nodes-base.openAi | openAiApi | OpenAI GPT-4 |
-```
-
-### 3. Get Credentials for Node Type
-
-When creating a new node that needs credentials, find the matching node type in the template:
-
-```json
-// From the parsed template, for node type "n8n-nodes-base.slack":
-{
-  "slackApi": {
-    "id": "cred-abc123",
-    "name": "Slack Production"
-  }
-}
-```
-
-### 4. Apply Credentials to New Node
-
-When building a workflow, add the credentials reference to the node:
-
+This returns everything you need:
 ```json
 {
-  "id": "new-node-id",
-  "name": "Send Slack Message",
   "type": "n8n-nodes-base.slack",
-  "typeVersion": 2,
-  "position": [450, 300],
+  "typeVersion": 2.2,
   "parameters": {
     "resource": "message",
-    "operation": "send",
-    "channel": "#general",
-    "text": "Hello from n8n!"
+    "operation": "post",
+    "channel": {
+      "__rl": true,
+      "mode": "name",
+      "value": "#general"
+    },
+    "text": "Hello!"
   },
   "credentials": {
     "slackApi": {
-      "id": "cred-abc123",
+      "id": "abc123",
       "name": "Slack Production"
     }
   }
 }
 ```
 
+### 4. Create New Node from Template Configuration
+
+When building a workflow, use the template node as your BASE:
+
+```json
+{
+  "id": "new-unique-id",
+  "name": "Send Notification",
+  "type": "n8n-nodes-base.slack",
+  "typeVersion": 2.2,
+  "position": [450, 300],
+  "parameters": {
+    "resource": "message",
+    "operation": "post",
+    "channel": {
+      "__rl": true,
+      "mode": "name",
+      "value": "#alerts"
+    },
+    "text": "={{ $json.message }}"
+  },
+  "credentials": {
+    "slackApi": {
+      "id": "abc123",
+      "name": "Slack Production"
+    }
+  }
+}
+```
+
+**What was copied from template:**
+- `type` - exact node type
+- `typeVersion` - ensures compatibility
+- `credentials` - full credential reference
+- `parameters` structure - only modified values that need to change
+
 ---
 
-## Workflow: Creating Nodes with Credentials
+## Workflow: Creating Nodes from Template
 
 ### Step-by-Step Process
 
@@ -209,34 +238,54 @@ When building a workflow, add the credentials reference to the node:
    - From `N8N_CREDENTIALS_TEMPLATE_URL`, get the last path segment
    - e.g., `https://n8n.example.com/workflow/abc123` -> `abc123`
 
-3. **Fetch template**:
+3. **Fetch template and find matching node**:
    ```bash
-   export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/abc123" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+   export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/abc123" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.type | contains("slack"))'
    ```
 
-4. **Parse for Slack credentials**:
-   - Find node with `type: "n8n-nodes-base.slack"`
-   - Extract its `credentials` object
+4. **Copy FULL configuration**:
+   - Copy `type`, `typeVersion`, `parameters`, `credentials`
+   - Only change: `id`, `name`, `position`, and specific parameter values as needed
 
-5. **Build node with credentials**:
+5. **Build new node**:
    ```json
    {
      "id": "slack-node-1",
      "name": "Send Message",
-     "type": "n8n-nodes-base.slack",
-     "typeVersion": 2.2,
+     "type": "<from-template>",
+     "typeVersion": "<from-template>",
      "position": [450, 300],
-     "parameters": {...},
+     "parameters": {
+       // START WITH TEMPLATE PARAMETERS
+       // Only modify what's needed for this use case
+     },
      "credentials": {
-       "slackApi": {
-         "id": "<from-template>",
-         "name": "<from-template>"
-       }
+       // COPY EXACTLY FROM TEMPLATE
      }
    }
    ```
 
 6. **Create workflow** using benai-skills:n8n-api skill
+
+---
+
+## Common Pitfalls (AVOID THESE!)
+
+### 1. Copying only credentials, not parameters
+- **Wrong**: Just copy `credentials` and guess at `parameters`
+- **Right**: Copy full node config including `parameters` and `typeVersion`
+
+### 2. Using wrong typeVersion
+- **Wrong**: Hardcode `typeVersion: 1`
+- **Right**: Use the exact `typeVersion` from the template node
+
+### 3. Missing parameter structure
+- **Wrong**: `"channel": "#general"` (simple string)
+- **Right**: Copy the exact structure from template (may need `__rl`, `mode`, etc.)
+
+### 4. Not checking if node exists in template
+- **Wrong**: Assume all node types exist in template
+- **Right**: First list available nodes, inform user if requested type is missing
 
 ---
 
@@ -276,17 +325,17 @@ Check that:
 3. Your API key has access to this workflow
 ```
 
-### No Credentials for Node Type
+### Node Type Not in Template
 ```
-Note: No credentials found in template for node type: n8n-nodes-base.{type}
+Note: No node found in template for type: n8n-nodes-base.{type}
 
 Options:
 1. Add a {type} node with credentials to your template workflow
-2. Skip credentials for this node (if it doesn't require them)
-3. Manually add credentials after creating the workflow
+2. Ask user if they want to proceed without template config
+3. Manually configure the node (may require UI setup for some nodes)
 ```
 
-### Template Has No Credentials
+### Template Has No Configured Nodes
 ```
 Warning: The credentials template workflow has no nodes with credentials.
 
@@ -299,7 +348,7 @@ then try again.
 ## Integration with Other Skills
 
 **To create/update workflows with credentials**:
-1. Use this skill to get credentials
+1. Use THIS skill to get full node configurations from template
 2. Use `benai-skills:n8n-api` skill to create the workflow
 
 ---
@@ -308,14 +357,28 @@ then try again.
 
 This skill handles:
 - Fetching credentials template via API
-- Listing available credentials
-- Getting credentials for specific node types
-- Applying credentials to new node configurations
+- Listing available node configurations (not just credentials!)
+- Extracting FULL node config: `type`, `typeVersion`, `parameters`, `credentials`
+- Providing base configurations for new nodes
 
 **Required .env variables**:
 - `N8N_API_URL`
 - `N8N_API_KEY`
 - `N8N_CREDENTIALS_TEMPLATE_URL`
 
-**API endpoint used**:
-- `GET /api/v1/workflows/{id}` (to fetch template)
+**Key commands:**
+
+Get all configured nodes:
+```bash
+jq '.nodes[] | select(.credentials != null)'
+```
+
+Get specific node type:
+```bash
+jq '.nodes[] | select(.type | contains("slack"))'
+```
+
+Get node config for reuse:
+```bash
+jq '.nodes[] | select(.type == "n8n-nodes-base.slack") | {type, typeVersion, parameters, credentials}'
+```

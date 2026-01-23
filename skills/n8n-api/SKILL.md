@@ -416,6 +416,73 @@ When creating or updating workflows, use this structure:
 - **Wrong**: `GET /api/v1/executions` (fetches everything, overwhelming)
 - **Right**: `GET /api/v1/executions?limit=2` (only recent, focused context)
 
+### 7. Telling user to test instead of testing yourself
+- **Wrong**: "Workflow created! Please test it."
+- **Right**: Test it yourself, debug failures, only report after confirmed working
+
+### 8. Reporting success without actually testing
+- **Wrong**: "Workflow is ready to use!" (without executing it)
+- **Right**: Execute workflow, verify status=success, then report to user
+
+---
+
+## Build-Test-Debug Workflow (REQUIRED)
+
+**CRITICAL**: Never tell the user a workflow is "ready" until you have actually tested it and confirmed it works. Follow this cycle:
+
+### Step 1: Build
+Create the workflow with all nodes, connections, and credentials from template.
+
+### Step 2: Test
+Execute the workflow and check the result:
+```bash
+# For webhook workflows - activate first, then trigger
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/activate" -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{}'
+```
+
+### Step 3: Check Execution Result
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=1" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[0] | {id, status, workflowId}'
+```
+
+### Step 4: If Failed - Debug
+Get error details:
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.error'
+```
+
+### Step 5: Fix and Repeat
+- Analyze the error
+- Update the workflow using PUT
+- Go back to Step 2
+- **Keep iterating until execution status is "success"**
+
+### Step 6: Only Then Report to User
+```
+✅ Workflow created and tested successfully!
+
+- Workflow: {name}
+- ID: {id}
+- URL: {url}
+- Status: Active and working
+- Test execution: Completed successfully
+
+The workflow is ready to use.
+```
+
+**NEVER tell the user:**
+- "Please test the workflow"
+- "You need to configure X in the UI"
+- "The workflow is ready" (if you haven't tested it)
+
+**ALWAYS:**
+- Test the workflow yourself
+- Debug any failures
+- Fix issues automatically
+- Only report success after confirmed working
+- If something CANNOT be fixed via API (like Google Sheets document selection), clearly explain what manual step is needed and WHY
+
 ---
 
 ## Best Practices
@@ -427,6 +494,7 @@ When creating or updating workflows, use this structure:
 3. **Set executionOrder to "v1"**: Modern execution order
 4. **Add error handling**: Include error outputs where appropriate
 5. **Always include webhook trigger** if the user wants to run via API
+6. **Always test before reporting success**
 
 ### Node Naming
 

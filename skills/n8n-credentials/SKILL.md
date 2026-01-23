@@ -350,6 +350,43 @@ then try again.
 **To create/update workflows with credentials**:
 1. Use THIS skill to get full node configurations from template
 2. Use `benai-skills:n8n-api` skill to create the workflow
+3. **Test the workflow and debug until it works**
+4. Only report success to user after confirmed working
+
+---
+
+## Build-Test-Debug Workflow (REQUIRED)
+
+**CRITICAL**: After creating a workflow with credentials from this template, you MUST test it before telling the user it's ready.
+
+### The Cycle
+1. **Build** - Create workflow with full node configs from template
+2. **Test** - Execute via webhook
+3. **Check** - Get execution status (limit=1)
+4. **Debug** - If failed, get error details
+5. **Fix** - Update workflow and repeat from step 2
+6. **Report** - Only tell user "success" after execution status is "success"
+
+### What to Tell the User
+
+**WRONG:**
+```
+Workflow created! Please test it and configure the Google Sheets node.
+```
+
+**RIGHT:**
+```
+✅ Workflow created and tested successfully!
+
+- Name: LA Dentists to Google Sheets
+- URL: https://n8n.example.com/workflow/abc123
+- Status: Active and working
+- Test result: Successfully scraped 100 dentists and saved to sheet
+
+Note: You'll need to select the Google Sheet in the UI (this requires OAuth and can't be done via API).
+```
+
+**Key difference**: Be specific about what works, what was tested, and only mention manual steps if they're truly required (with explanation why).
 
 ---
 

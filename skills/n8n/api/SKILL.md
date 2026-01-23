@@ -1,11 +1,11 @@
 ---
 name: n8n:api
-description: WRITE operations via n8n REST API. Use when creating, updating, deleting, or activating/deactivating workflows, managing tags, variables, or source control.
+description: All n8n workflow operations via REST API. Use for listing, getting, creating, updating, deleting, activating/deactivating workflows, managing tags, variables, executions, and source control.
 ---
 
 # n8n:api Skill
 
-**Purpose**: WRITE operations via n8n REST API (create, update, delete, activate workflows)
+**Purpose**: All n8n workflow operations via REST API
 
 ---
 
@@ -27,7 +27,6 @@ Use the Read tool to check for `.env` in the current working directory.
 
 N8N_API_URL=
 N8N_API_KEY=
-N8N_MCP_CONFIGURED=false
 N8N_CREDENTIALS_TEMPLATE_URL=
 ```
 
@@ -39,7 +38,7 @@ After reading or creating `.env`, check that these variables have values:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `N8N_API_URL` | Yes | n8n instance URL |
+| `N8N_API_URL` | Yes | n8n instance URL (no trailing slash) |
 | `N8N_API_KEY` | Yes | n8n API key |
 
 ### Step 4: Prompt for Missing Values
@@ -60,123 +59,161 @@ After user provides values, update `.env` with the values using the Edit tool.
 
 ---
 
-## API Configuration
+## API Call Format
 
-After reading `.env`, extract the values:
-- `N8N_API_URL` - Base URL for all API calls
-- `N8N_API_KEY` - Used in `X-N8N-API-KEY` header
+**IMPORTANT**: Always use this exact format for API calls to avoid encoding issues:
 
-**Important**: Remove trailing slash from `N8N_API_URL` if present.
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+```
+
+For POST/PATCH/DELETE requests, add the method and data:
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d 'JSON_DATA'
+```
+
+**Key points:**
+- Load env vars first with `export $(cat .env | grep -v '^#' | xargs)`
+- Use double quotes around URL and header values with variable interpolation
+- Use single quotes around JSON data
+- Pipe to `| jq .` for formatted output
 
 ---
 
-## Available Operations
+## READ Operations
 
-### Workflow CRUD Operations
+### List All Workflows
 
-#### Create Workflow
 ```bash
-curl -X POST "${N8N_API_URL}/api/v1/workflows" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "My Workflow",
-    "nodes": [...],
-    "connections": {...},
-    "settings": {
-      "executionOrder": "v1"
-    }
-  }'
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Update Workflow
+### Get Workflow by ID
+
 ```bash
-curl -X PATCH "${N8N_API_URL}/api/v1/workflows/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Updated Name",
-    "nodes": [...],
-    "connections": {...}
-  }'
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Delete Workflow
+### List Tags
+
 ```bash
-curl -X DELETE "${N8N_API_URL}/api/v1/workflows/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/tags" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Activate Workflow
+### List Variables
+
 ```bash
-curl -X PATCH "${N8N_API_URL}/api/v1/workflows/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"active": true}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/variables" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Deactivate Workflow
+### List Executions
+
 ```bash
-curl -X PATCH "${N8N_API_URL}/api/v1/workflows/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"active": false}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-### Tags Operations
+### Get Execution by ID
 
-#### List Tags
 ```bash
-curl -X GET "${N8N_API_URL}/api/v1/tags" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Create Tag
+---
+
+## WRITE Operations
+
+### Create Workflow
+
 ```bash
-curl -X POST "${N8N_API_URL}/api/v1/tags" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "production"}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
+  "name": "My Workflow",
+  "nodes": [],
+  "connections": {},
+  "settings": {"executionOrder": "v1"}
+}' | jq .
 ```
 
-### Variables Operations
+### Update Workflow
 
-#### List Variables
 ```bash
-curl -X GET "${N8N_API_URL}/api/v1/variables" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
+  "name": "Updated Name",
+  "nodes": [],
+  "connections": {}
+}' | jq .
 ```
 
-#### Create Variable
+### Delete Workflow
+
 ```bash
-curl -X POST "${N8N_API_URL}/api/v1/variables" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"key": "MY_VAR", "value": "my-value"}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X DELETE "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-#### Delete Variable
+### Activate Workflow
+
 ```bash
-curl -X DELETE "${N8N_API_URL}/api/v1/variables/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"active": true}' | jq .
 ```
 
-### Source Control Operations
+### Deactivate Workflow
 
-#### Pull from Remote
 ```bash
-curl -X POST "${N8N_API_URL}/api/v1/source-control/pull" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"force": false}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PATCH "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"active": false}' | jq .
 ```
 
-#### Push to Remote
+### Create Tag
+
 ```bash
-curl -X POST "${N8N_API_URL}/api/v1/source-control/push" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Update workflows"}'
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/tags" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"name": "production"}' | jq .
+```
+
+### Create Variable
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/variables" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"key": "MY_VAR", "value": "my-value"}' | jq .
+```
+
+### Delete Variable
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X DELETE "${N8N_API_URL}/api/v1/variables/{VARIABLE_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+```
+
+---
+
+## Workflow Execution
+
+### Execute Workflow via Webhook
+
+For workflows with webhook triggers:
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"key": "value"}' | jq .
+```
+
+### Execute Workflow via Test Webhook
+
+For testing webhook workflows (requires workflow to be open in n8n):
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook-test/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"key": "value"}' | jq .
+```
+
+---
+
+## Source Control Operations
+
+### Pull from Remote
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/source-control/pull" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"force": false}' | jq .
+```
+
+### Push to Remote
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/source-control/push" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"message": "Update workflows"}' | jq .
 ```
 
 ---
@@ -195,12 +232,8 @@ When creating or updating workflows, use this structure:
       "type": "n8n-nodes-base.nodeName",
       "typeVersion": 1,
       "position": [250, 300],
-      "parameters": {
-        // Node-specific parameters
-      },
-      "credentials": {
-        // Optional: credential references
-      }
+      "parameters": {},
+      "credentials": {}
     }
   ],
   "connections": {
@@ -258,23 +291,20 @@ When creating or updating workflows, use this structure:
 | Status | Meaning | Solution |
 |--------|---------|----------|
 | 401 | Unauthorized | Check API key is valid |
-| 404 | Not found | Check workflow ID exists |
+| 404 | Not found | Check workflow/execution ID exists |
 | 400 | Bad request | Validate JSON structure |
 | 409 | Conflict | Workflow name may be duplicate |
 
-### Validation Before API Calls
+### Debugging Tips
 
-Before creating/updating workflows, use the n8n:mcp skill to validate:
-```
-mcp__n8n-mcp__validate_workflow(workflow: {...})
-```
+1. Check `.env` values are correct (no trailing slash on URL)
+2. Ensure API key has appropriate permissions
+3. Verify n8n instance is running and accessible
+4. Use `| jq .` to format JSON responses
 
 ---
 
 ## Integration with Other Skills
-
-**For READ operations** (list, get, search):
--> Use the `n8n:mcp` skill
 
 **For credentials in new nodes**:
 -> Use the `n8n:credentials` skill to get credential references from the template
@@ -283,11 +313,12 @@ mcp__n8n-mcp__validate_workflow(workflow: {...})
 
 ## Quick Reference
 
-This skill handles:
-- Create workflows
-- Update workflows
-- Delete workflows
-- Activate/deactivate workflows
+This skill handles ALL n8n operations:
+- List/Get workflows
+- Create/Update/Delete workflows
+- Activate/Deactivate workflows
+- List/Get executions
+- Execute workflows via webhook
 - Manage tags
 - Manage variables
 - Source control operations

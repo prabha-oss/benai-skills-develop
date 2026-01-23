@@ -1,11 +1,10 @@
 # BenAI Skills Plugin
 
-A Claude Code plugin that enables seamless n8n workflow automation with three complementary skills.
+A Claude Code plugin that enables seamless n8n workflow automation via REST API.
 
 ## Features
 
-- **n8n:mcp**: READ operations via n8n MCP tools (list, get, search, validate, execute)
-- **n8n:api**: WRITE operations via REST API (create, update, delete, activate workflows)
+- **n8n:api**: All workflow operations via REST API (list, get, create, update, delete, activate, execute)
 - **n8n:credentials**: Credential management via template workflow
 
 ## Installation
@@ -39,47 +38,9 @@ Provide your n8n instance URL and API key:
 
 These values are saved to `.env` in your current working directory.
 
-### Step 2: n8n MCP Server Setup
+### Step 2: Credentials Template Workflow (Optional)
 
-Add the n8n MCP server to your Claude configuration:
-
-**For Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-```json
-{
-  "mcpServers": {
-    "n8n-mcp": {
-      "command": "npx",
-      "args": ["-y", "@n8n/mcp-server"],
-      "env": {
-        "N8N_API_URL": "https://your-n8n.app.n8n.cloud",
-        "N8N_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-**For Claude Code** (`~/.claude/settings.json`):
-```json
-{
-  "mcpServers": {
-    "n8n-mcp": {
-      "command": "npx",
-      "args": ["-y", "@n8n/mcp-server"],
-      "env": {
-        "N8N_API_URL": "https://your-n8n.app.n8n.cloud",
-        "N8N_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-After adding, restart Claude.
-
-### Step 3: Credentials Template Workflow
-
-Create a workflow in n8n that contains nodes with your configured credentials. This template is used to extract credential references for new workflows.
+For credential management, create a workflow in n8n that contains nodes with your configured credentials. This template is used to extract credential references for new workflows.
 
 Example template structure:
 ```
@@ -98,39 +59,26 @@ All configuration is stored in `.env` in your project directory:
 # BenAI n8n Skills Configuration
 N8N_API_URL=https://your-n8n.app.n8n.cloud
 N8N_API_KEY=your-api-key
-N8N_MCP_CONFIGURED=true
 N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n.app.n8n.cloud/workflow/your-template-id
 ```
 
 ## Usage
 
-### n8n:mcp Skill
-
-READ operations and workflow execution:
-
-```
-/benai-skills:n8n:mcp
-
-# Examples:
-"List all my workflows"
-"Get details for workflow abc123"
-"Search for Slack nodes"
-"Validate my workflow"
-"Execute the webhook workflow"
-```
-
 ### n8n:api Skill
 
-WRITE operations via REST API:
+All workflow operations via REST API:
 
 ```
 /benai-skills:n8n:api
 
 # Examples:
+"List all my workflows"
+"Get details for workflow abc123"
 "Create a new workflow that sends Slack messages"
 "Update workflow abc123"
 "Activate my workflow"
 "Delete the test workflow"
+"Show recent executions"
 ```
 
 ### n8n:credentials Skill
@@ -150,9 +98,8 @@ Credential management:
 
 | Skill | Purpose | Required Setup |
 |-------|---------|----------------|
-| n8n:mcp | READ operations, execution | Steps 1 & 2 |
-| n8n:api | WRITE operations | Step 1 |
-| n8n:credentials | Credential management | All steps |
+| n8n:api | All workflow operations | API URL & Key |
+| n8n:credentials | Credential management | API URL, Key & Template URL |
 
 ## Project Structure
 
@@ -163,8 +110,6 @@ benai-skills/
 ├── skills/
 │   └── n8n/
 │       ├── api/
-│       │   └── SKILL.md
-│       ├── mcp/
 │       │   └── SKILL.md
 │       └── credentials/
 │           └── SKILL.md

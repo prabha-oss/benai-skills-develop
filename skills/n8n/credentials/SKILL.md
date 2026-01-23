@@ -27,7 +27,6 @@ Use the Read tool to check for `.env` in the current working directory.
 
 N8N_API_URL=
 N8N_API_KEY=
-N8N_MCP_CONFIGURED=false
 N8N_CREDENTIALS_TEMPLATE_URL=
 ```
 
@@ -35,23 +34,20 @@ Do NOT ask the user to create this file - create it yourself automatically.
 
 ### Step 3: Check ALL Required Variables
 
-This skill requires ALL setup steps to be complete:
+This skill requires ALL variables to be set:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `N8N_API_URL` | Yes | n8n instance URL |
+| `N8N_API_URL` | Yes | n8n instance URL (no trailing slash) |
 | `N8N_API_KEY` | Yes | n8n API key |
-| `N8N_MCP_CONFIGURED` | Yes (must be `true`) | MCP setup verified |
 | `N8N_CREDENTIALS_TEMPLATE_URL` | Yes | Credentials template workflow URL |
 
 ### Step 4: Handle Missing Values
 
-Run through ALL setup steps if any are missing:
-
-#### Setup Step 1 - If N8N_API_URL or N8N_API_KEY is empty:
+#### If N8N_API_URL or N8N_API_KEY is empty:
 Ask the user:
 ```
-Step 1 of 3: n8n API Configuration
+Step 1 of 2: n8n API Configuration
 
 Please provide:
 1. Your n8n instance URL (e.g., https://your-n8n.app.n8n.cloud)
@@ -62,39 +58,10 @@ You can find your API key in n8n at: Settings -> API -> Create API Key
 
 Update `.env` with the values using the Edit tool.
 
-#### Setup Step 2 - If N8N_MCP_CONFIGURED is not "true":
-Guide the user:
-```
-Step 2 of 3: n8n MCP Server Setup
-
-Add the following to your Claude MCP configuration:
-
-For Claude Desktop (~/Library/Application Support/Claude/claude_desktop_config.json):
-{
-  "mcpServers": {
-    "n8n-mcp": {
-      "command": "npx",
-      "args": ["-y", "@n8n/mcp-server"],
-      "env": {
-        "N8N_API_URL": "<your-n8n-url>",
-        "N8N_API_KEY": "<your-n8n-api-key>"
-      }
-    }
-  }
-}
-
-After adding the configuration, restart Claude and confirm.
-```
-
-After user confirms, verify MCP is working by calling `mcp__n8n-mcp__n8n_health_check`. If successful, update `.env`:
-```
-N8N_MCP_CONFIGURED=true
-```
-
-#### Setup Step 3 - If N8N_CREDENTIALS_TEMPLATE_URL is empty:
+#### If N8N_CREDENTIALS_TEMPLATE_URL is empty:
 Ask the user:
 ```
-Step 3 of 3: Credentials Template Workflow
+Step 2 of 2: Credentials Template Workflow
 
 To manage credentials, you need a template workflow that contains nodes with your configured credentials.
 
@@ -109,7 +76,15 @@ What is your credentials template workflow URL?
 
 Update `.env` with the value.
 
-**Extracting the Workflow ID**: When using the template, extract the workflow ID from the URL by taking the last path segment (e.g., `abc123` from `https://your-n8n.app.n8n.cloud/workflow/abc123`).
+---
+
+## API Call Format
+
+**IMPORTANT**: Always use this exact format for API calls to avoid encoding issues:
+
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
+```
 
 ---
 
@@ -141,22 +116,21 @@ Each node should have credentials configured. The template doesn't need to be ac
 
 First, extract the workflow ID from `N8N_CREDENTIALS_TEMPLATE_URL` (the last path segment of the URL).
 
-Then get the full template workflow to extract credentials:
+Then fetch the template workflow:
 
-```
-mcp__n8n-mcp__n8n_get_workflow(
-  id: "<extracted-workflow-id>",
-  mode: "full"
-)
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
 ### 2. List Available Credentials
 
-After fetching the template, parse the nodes to list available credentials:
+After fetching the template, parse the nodes to list available credentials.
+
+From the JSON response, look at the `nodes` array and extract credentials:
 
 ```javascript
 // Parse the template response
-const template = response.workflow;
+const template = response;
 const credentials = {};
 
 template.nodes.forEach(node => {
@@ -185,14 +159,10 @@ Available Credentials from Template:
 
 ### 3. Get Credentials for Node Type
 
-When creating a new node that needs credentials:
+When creating a new node that needs credentials, find the matching node type in the template:
 
-```
-// From the parsed template
-const nodeType = "n8n-nodes-base.slack";
-const credential = credentials[nodeType];
-
-// Returns:
+```json
+// From the parsed template, for node type "n8n-nodes-base.slack":
 {
   "slackApi": {
     "id": "cred-abc123",
@@ -235,19 +205,18 @@ When building a workflow, add the credentials reference to the node:
 
 1. **User requests**: "Create a Slack workflow"
 
-2. **Fetch template** (extract workflow ID from `N8N_CREDENTIALS_TEMPLATE_URL` first):
-   ```
-   mcp__n8n-mcp__n8n_get_workflow(id: "<extracted-workflow-id>", mode: "full")
+2. **Extract workflow ID from URL**:
+   - From `N8N_CREDENTIALS_TEMPLATE_URL`, get the last path segment
+   - e.g., `https://n8n.example.com/workflow/abc123` -> `abc123`
+
+3. **Fetch template**:
+   ```bash
+   export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/abc123" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
    ```
 
-3. **Parse for Slack credentials**:
+4. **Parse for Slack credentials**:
    - Find node with `type: "n8n-nodes-base.slack"`
    - Extract its `credentials` object
-
-4. **Get node schema**:
-   ```
-   mcp__n8n-mcp__get_node(nodeType: "n8n-nodes-base.slack", detail: "standard")
-   ```
 
 5. **Build node with credentials**:
    ```json
@@ -291,6 +260,7 @@ Common credential type names used in n8n:
 | Twilio | `twilioApi` |
 | SendGrid | `sendGridApi` |
 | AWS | `aws` |
+| Apify | `apifyApi` |
 
 ---
 
@@ -328,9 +298,6 @@ then try again.
 
 ## Integration with Other Skills
 
-**To read workflow/node info**:
--> Use the `n8n:mcp` skill
-
 **To create/update workflows with credentials**:
 1. Use this skill to get credentials
 2. Use `n8n:api` skill to create the workflow
@@ -340,7 +307,7 @@ then try again.
 ## Quick Reference
 
 This skill handles:
-- Fetching credentials template
+- Fetching credentials template via API
 - Listing available credentials
 - Getting credentials for specific node types
 - Applying credentials to new node configurations
@@ -348,8 +315,7 @@ This skill handles:
 **Required .env variables**:
 - `N8N_API_URL`
 - `N8N_API_KEY`
-- `N8N_MCP_CONFIGURED=true`
 - `N8N_CREDENTIALS_TEMPLATE_URL`
 
-**Primary MCP tool used**:
-- `mcp__n8n-mcp__n8n_get_workflow` (to fetch template)
+**API endpoint used**:
+- `GET /api/v1/workflows/{id}` (to fetch template)

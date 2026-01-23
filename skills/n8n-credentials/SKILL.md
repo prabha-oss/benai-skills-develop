@@ -1,9 +1,9 @@
 ---
-name: n8n:credentials
+name: n8n-credentials
 description: Credential management via template workflow. Use when you need to get credentials for new nodes or list available credentials from the template.
 ---
 
-# n8n:credentials Skill
+# n8n-credentials Skill
 
 **Purpose**: Credential management via template workflow - extract and apply credentials to new nodes
 
@@ -236,7 +236,7 @@ When building a workflow, add the credentials reference to the node:
    }
    ```
 
-6. **Create workflow** using n8n:api skill
+6. **Create workflow** using benai-skills:n8n-api skill
 
 ---
 
@@ -300,7 +300,7 @@ then try again.
 
 **To create/update workflows with credentials**:
 1. Use this skill to get credentials
-2. Use `n8n:api` skill to create the workflow
+2. Use `benai-skills:n8n-api` skill to create the workflow
 
 ---
 

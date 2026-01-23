@@ -1,9 +1,9 @@
 ---
-name: n8n:api
+name: n8n-api
 description: All n8n workflow operations via REST API. Use for listing, getting, creating, updating, deleting, activating/deactivating workflows, managing tags, variables, executions, and source control.
 ---
 
-# n8n:api Skill
+# n8n-api Skill
 
 **Purpose**: All n8n workflow operations via REST API
 
@@ -307,7 +307,7 @@ When creating or updating workflows, use this structure:
 ## Integration with Other Skills
 
 **For credentials in new nodes**:
--> Use the `n8n:credentials` skill to get credential references from the template
+-> Use the `benai-skills:n8n-credentials` skill to get credential references from the template
 
 ---
 

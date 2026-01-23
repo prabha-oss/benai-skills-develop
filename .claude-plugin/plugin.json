@@ -1,13 +1,9 @@
 {
   "name": "benai-skills",
   "description": "BenAI expert skills for n8n workflow automation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "BenAI"
   },
-  "license": "MIT",
-  "skills": [
-    "skills/n8n/api/SKILL.md",
-    "skills/n8n/credentials/SKILL.md"
-  ]
+  "license": "MIT"
 }

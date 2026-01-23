@@ -1,0 +1,22 @@
+{
+  "name": "benai-skills",
+  "owner": {
+    "name": "naveedharri",
+    "email": "naveedharri@gmail.com"
+  },
+  "metadata": {
+    "description": "BenAI expert skills for n8n workflow automation"
+  },
+  "plugins": [
+    {
+      "name": "benai-skills",
+      "source": "./",
+      "description": "Expert skills for n8n workflow automation including API operations, MCP tools, and credential management",
+      "version": "1.0.0",
+      "author": {
+        "name": "naveedharri"
+      },
+      "keywords": ["n8n", "workflow", "automation", "mcp"]
+    }
+  ]
+}

@@ -4,9 +4,9 @@ A Claude Code plugin that enables seamless n8n workflow automation with three co
 
 ## Features
 
-- **n8n-mcp**: READ operations via n8n MCP tools (list, get, search, validate, execute)
-- **n8n-api**: WRITE operations via REST API (create, update, delete, activate workflows)
-- **n8n-credentials**: Credential management via template workflow
+- **n8n:mcp**: READ operations via n8n MCP tools (list, get, search, validate, execute)
+- **n8n:api**: WRITE operations via REST API (create, update, delete, activate workflows)
+- **n8n:credentials**: Credential management via template workflow
 
 ## Installation
 
@@ -29,13 +29,13 @@ claude --plugin-dir /path/to/benai-skills
 
 ## Setup
 
-The first time you use any skill, you'll be guided through a 3-step setup process:
+The first time you use any skill, the plugin will automatically create a `.env` file in your current working directory and guide you through the setup process.
 
 ### Step 1: n8n API Configuration
 
 Provide your n8n instance URL and API key:
 - URL: Your n8n instance (e.g., `https://your-n8n.app.n8n.cloud`)
-- API Key: Generated in n8n at Settings → API → Create API Key
+- API Key: Generated in n8n at Settings -> API -> Create API Key
 
 These values are saved to `.env` in your current working directory.
 
@@ -83,12 +83,12 @@ Create a workflow in n8n that contains nodes with your configured credentials. T
 
 Example template structure:
 ```
-[Slack Node] → [Google Sheets Node] → [OpenAI Node]
+[Slack Node] -> [Google Sheets Node] -> [OpenAI Node]
 ```
 
 Each node should have working credentials configured. The workflow doesn't need to be active.
 
-Provide the workflow ID (found in the n8n URL when viewing the workflow).
+Provide the full workflow URL (copy from your browser when viewing the workflow).
 
 ## Configuration
 
@@ -99,17 +99,17 @@ All configuration is stored in `.env` in your project directory:
 N8N_API_URL=https://your-n8n.app.n8n.cloud
 N8N_API_KEY=your-api-key
 N8N_MCP_CONFIGURED=true
-N8N_CREDENTIALS_TEMPLATE_ID=your-template-workflow-id
+N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n.app.n8n.cloud/workflow/your-template-id
 ```
 
 ## Usage
 
-### n8n-mcp Skill
+### n8n:mcp Skill
 
 READ operations and workflow execution:
 
 ```
-/benai-skills:n8n-mcp
+/benai-skills:n8n:mcp
 
 # Examples:
 "List all my workflows"
@@ -119,12 +119,12 @@ READ operations and workflow execution:
 "Execute the webhook workflow"
 ```
 
-### n8n-api Skill
+### n8n:api Skill
 
 WRITE operations via REST API:
 
 ```
-/benai-skills:n8n-api
+/benai-skills:n8n:api
 
 # Examples:
 "Create a new workflow that sends Slack messages"
@@ -133,12 +133,12 @@ WRITE operations via REST API:
 "Delete the test workflow"
 ```
 
-### n8n-credentials Skill
+### n8n:credentials Skill
 
 Credential management:
 
 ```
-/benai-skills:n8n-credentials
+/benai-skills:n8n:credentials
 
 # Examples:
 "What credentials are available?"
@@ -150,9 +150,9 @@ Credential management:
 
 | Skill | Purpose | Required Setup |
 |-------|---------|----------------|
-| n8n-mcp | READ operations, execution | Steps 1 & 2 |
-| n8n-api | WRITE operations | Step 1 |
-| n8n-credentials | Credential management | All steps |
+| n8n:mcp | READ operations, execution | Steps 1 & 2 |
+| n8n:api | WRITE operations | Step 1 |
+| n8n:credentials | Credential management | All steps |
 
 ## Project Structure
 
@@ -161,12 +161,13 @@ benai-skills/
 ├── .claude-plugin/
 │   └── plugin.json
 ├── skills/
-│   ├── n8n-mcp/
-│   │   └── SKILL.md
-│   ├── n8n-api/
-│   │   └── SKILL.md
-│   └── n8n-credentials/
-│       └── SKILL.md
+│   └── n8n/
+│       ├── api/
+│       │   └── SKILL.md
+│       ├── mcp/
+│       │   └── SKILL.md
+│       └── credentials/
+│           └── SKILL.md
 ├── .gitignore
 ├── LICENSE
 └── README.md

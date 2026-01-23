@@ -438,97 +438,129 @@ When creating or updating workflows, use this structure:
 
 ---
 
-## Incremental Build-Test Workflow (REQUIRED)
+## Incremental Build-Test Workflow (MANDATORY!)
 
-**CRITICAL**: Build workflows STEP BY STEP. Add one node, test it, verify it works, then add the next node. Never create the entire workflow at once.
+**STOP! READ THIS BEFORE BUILDING ANY WORKFLOW!**
 
-### Why Incremental?
-- Isolates issues to specific nodes
-- Easier to debug (you know exactly which node failed)
-- Prevents cascading errors
-- Each node is verified before moving forward
+You MUST follow this process EXACTLY. Do NOT skip the testing steps.
 
-### IMPORTANT: One Workflow, Keep Updating
-**Create ONE workflow and keep updating it.** Do NOT create new workflows for each change or test.
+### THE RULE: Add ONE Node → Test → Verify → Then Next Node
 
+After adding EACH node, you MUST:
+1. **Activate** the workflow
+2. **Execute** via webhook with test data
+3. **Check** execution status
+4. **Verify** the new node ran and produced correct output
+5. **ONLY THEN** add the next node
+
+**DO NOT** just keep adding nodes without testing. This is WRONG.
+
+### One Workflow, Keep Updating
 - Create workflow ONCE with POST → get workflow ID
 - All subsequent changes use PUT to the SAME workflow ID
 - Never create a new workflow just to test or fix something
-- The workflow ID stays constant throughout the build process
 
-### The Process
+---
 
-#### Phase 1: Create Base Workflow with Trigger
+### STEP-BY-STEP PROCESS (FOLLOW EXACTLY)
+
+#### Step 1: Create Workflow with Trigger Only
 ```bash
-# Create workflow with just the trigger node (webhook or manual)
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
   "name": "My Workflow",
-  "nodes": [
-    {
-      "id": "webhook-1",
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [250, 300],
-      "parameters": {"path": "my-workflow", "httpMethod": "POST"}
-    }
-  ],
+  "nodes": [{
+    "id": "webhook-1",
+    "name": "Webhook",
+    "type": "n8n-nodes-base.webhook",
+    "typeVersion": 2,
+    "position": [250, 300],
+    "parameters": {"path": "my-workflow", "httpMethod": "POST"}
+  }],
   "connections": {},
   "settings": {"executionOrder": "v1"}
 }' | jq '{id, name}'
 ```
+**Save the workflow ID - you'll use it for ALL updates.**
 
-#### Phase 2: Add First Processing Node → Test
+#### Step 2: Activate the Workflow
 ```bash
-# Update workflow to add first node
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X PUT "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" ...
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/activate" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '{id, active}'
+```
 
-# Activate
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/activate" -H "X-N8N-API-KEY: ${N8N_API_KEY}"
+#### Step 3: Test the Trigger
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"test": "data"}'
+```
 
-# Test
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{path}" -H "Content-Type: application/json" -d '{}'
-
-# Check result
+#### Step 4: Verify Execution
+```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=1" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[0] | {id, status}'
 ```
 
-**If status = "success"** → Proceed to add next node
-**If status = "error"** → Debug, fix, test again until success
+**STOP HERE if status ≠ "success". Debug and fix before continuing.**
 
-#### Phase 3: Add Next Node → Test
-Repeat Phase 2 for each additional node:
-1. Add the node to workflow (PUT)
-2. Add connection from previous node
-3. Test the workflow
-4. Verify the NEW node executed successfully
-5. Only proceed when status = "success"
-
-#### Phase 4: Final Verification
-After all nodes added:
-1. Run complete workflow end-to-end
-2. Verify final output is correct
-3. Check all nodes executed (not just last one)
-
-### Checking Individual Node Execution
+#### Step 5: Add Next Node (PUT to update)
 ```bash
-# Get detailed execution with all node results
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PUT "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
+  ... existing nodes + new node + updated connections ...
+}'
+```
+
+#### Step 6: Test Again
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{"test": "data"}'
+```
+
+#### Step 7: Verify New Node Executed
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=1" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[0] | {id, status}'
+```
+
+**Check which nodes ran:**
+```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.runData | keys'
 ```
 
-This shows which nodes ran. Verify your newly added node is in the list.
+**STOP HERE if status ≠ "success" or new node not in runData. Debug and fix.**
 
-### Example: Building a 3-Node Workflow
+#### Step 8: Repeat Steps 5-7 for Each Additional Node
 
-**Step 1**: Create with Webhook only → Test → ✓ Works
+**NEVER skip the test step. NEVER add multiple nodes without testing.**
 
-**Step 2**: Add HTTP Request node → Test → ✓ Works (returns data)
+---
 
-**Step 3**: Add Google Sheets node → Test → ✗ Error: "documentId required"
-- Fix: Ask user for spreadsheet ID, or note manual config needed
-- Test again → ✓ Works
+### Example: Correct Build Process
 
-**Step 4**: Final test → All 3 nodes execute → Report success to user
+```
+✓ Step 1: Create workflow with Webhook
+✓ Step 2: Activate
+✓ Step 3: Test → Execute webhook
+✓ Step 4: Verify → status: success, runData: ["Webhook"]
+
+✓ Step 5: Add Apify Scraper node (PUT)
+✓ Step 6: Test → Execute webhook
+✓ Step 7: Verify → status: success, runData: ["Webhook", "Apify Scraper"]
+
+✓ Step 5: Add AI Analysis node (PUT)
+✓ Step 6: Test → Execute webhook
+✓ Step 7: Verify → status: success, runData: ["Webhook", "Apify Scraper", "AI Analysis"]
+
+... continue for each node ...
+
+✓ Final: All nodes tested and working → Report to user
+```
+
+### WRONG vs RIGHT
+
+**WRONG (DO NOT DO THIS):**
+```
+Add Webhook → Add Scraper → Add AI → Add Sheets → Test → Error → ???
+```
+
+**RIGHT (DO THIS):**
+```
+Add Webhook → Test ✓ → Add Scraper → Test ✓ → Add AI → Test ✓ → Add Sheets → Test ✓ → Done
+```
 
 ### What to Report to User
 

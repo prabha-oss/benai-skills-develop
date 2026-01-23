@@ -363,17 +363,30 @@ then try again.
 
 ---
 
-## Incremental Build-Test Workflow (REQUIRED)
+## Incremental Build-Test Workflow (MANDATORY!)
 
-**CRITICAL**: Build workflows NODE BY NODE. Add one node, test it, verify it works, then add the next. Never create all nodes at once.
+**STOP! You MUST test after adding EACH node. No exceptions.**
 
-### The Incremental Process
-1. **Create** - Start with trigger node only
-2. **Add Node** - Add ONE node from template (with full config)
-3. **Test** - Execute and verify this node works
-4. **Verify** - Check execution `runData` includes the new node
-5. **Repeat** - Add next node, test, verify
-6. **Report** - Only tell user "success" after ALL nodes tested working
+### The Process (FOLLOW EXACTLY)
+1. **Create** workflow with trigger only → **TEST** → verify works
+2. **Add ONE node** from template → **TEST** → verify new node in runData
+3. **Add next node** → **TEST** → verify
+4. **Repeat** for each node
+5. **Report** only after ALL nodes individually tested and working
+
+### After EVERY Node Addition:
+```bash
+# 1. Execute
+curl -X POST "${N8N_API_URL}/webhook/{path}" -d '{}'
+
+# 2. Check status
+curl "${N8N_API_URL}/api/v1/executions?limit=1" | jq '.data[0].status'
+
+# 3. Verify node ran
+curl "${N8N_API_URL}/api/v1/executions/{id}?includeData=true" | jq '.data.resultData.runData | keys'
+```
+
+**DO NOT add the next node until current node test passes!**
 
 ### What to Tell the User
 

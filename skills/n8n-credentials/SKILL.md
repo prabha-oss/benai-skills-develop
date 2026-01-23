@@ -287,6 +287,14 @@ When building a workflow, use the template node as your BASE:
 - **Wrong**: Assume all node types exist in template
 - **Right**: First list available nodes, inform user if requested type is missing
 
+### 5. Building entire workflow at once
+- **Wrong**: Add all nodes from template at once → test → error → hard to find which node failed
+- **Right**: Add node 1 → test → add node 2 → test → incremental build with verification
+
+### 6. Creating new workflows instead of updating
+- **Wrong**: Create new workflow for each change or test
+- **Right**: Create ONE workflow, use PUT to update it, keep same ID throughout
+
 ---
 
 ## Credential Types Reference
@@ -355,17 +363,17 @@ then try again.
 
 ---
 
-## Build-Test-Debug Workflow (REQUIRED)
+## Incremental Build-Test Workflow (REQUIRED)
 
-**CRITICAL**: After creating a workflow with credentials from this template, you MUST test it before telling the user it's ready.
+**CRITICAL**: Build workflows NODE BY NODE. Add one node, test it, verify it works, then add the next. Never create all nodes at once.
 
-### The Cycle
-1. **Build** - Create workflow with full node configs from template
-2. **Test** - Execute via webhook
-3. **Check** - Get execution status (limit=1)
-4. **Debug** - If failed, get error details
-5. **Fix** - Update workflow and repeat from step 2
-6. **Report** - Only tell user "success" after execution status is "success"
+### The Incremental Process
+1. **Create** - Start with trigger node only
+2. **Add Node** - Add ONE node from template (with full config)
+3. **Test** - Execute and verify this node works
+4. **Verify** - Check execution `runData` includes the new node
+5. **Repeat** - Add next node, test, verify
+6. **Report** - Only tell user "success" after ALL nodes tested working
 
 ### What to Tell the User
 

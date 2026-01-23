@@ -424,64 +424,158 @@ When creating or updating workflows, use this structure:
 - **Wrong**: "Workflow is ready to use!" (without executing it)
 - **Right**: Execute workflow, verify status=success, then report to user
 
+### 9. Building entire workflow at once then debugging
+- **Wrong**: Create workflow with all 5 nodes → test → error somewhere → hard to debug
+- **Right**: Add node 1 → test → add node 2 → test → add node 3 → test (incremental)
+
+### 10. Not verifying each node executed
+- **Wrong**: Check only final status, assume all nodes ran
+- **Right**: Check `runData | keys` to verify each node in execution results
+
+### 11. Creating new workflows instead of updating
+- **Wrong**: Create new workflow each time you want to add a node or fix something
+- **Right**: Create ONE workflow, use PUT to update it incrementally, keep same workflow ID
+
 ---
 
-## Build-Test-Debug Workflow (REQUIRED)
+## Incremental Build-Test Workflow (REQUIRED)
 
-**CRITICAL**: Never tell the user a workflow is "ready" until you have actually tested it and confirmed it works. Follow this cycle:
+**CRITICAL**: Build workflows STEP BY STEP. Add one node, test it, verify it works, then add the next node. Never create the entire workflow at once.
 
-### Step 1: Build
-Create the workflow with all nodes, connections, and credentials from template.
+### Why Incremental?
+- Isolates issues to specific nodes
+- Easier to debug (you know exactly which node failed)
+- Prevents cascading errors
+- Each node is verified before moving forward
 
-### Step 2: Test
-Execute the workflow and check the result:
+### IMPORTANT: One Workflow, Keep Updating
+**Create ONE workflow and keep updating it.** Do NOT create new workflows for each change or test.
+
+- Create workflow ONCE with POST → get workflow ID
+- All subsequent changes use PUT to the SAME workflow ID
+- Never create a new workflow just to test or fix something
+- The workflow ID stays constant throughout the build process
+
+### The Process
+
+#### Phase 1: Create Base Workflow with Trigger
 ```bash
-# For webhook workflows - activate first, then trigger
+# Create workflow with just the trigger node (webhook or manual)
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{
+  "name": "My Workflow",
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {"path": "my-workflow", "httpMethod": "POST"}
+    }
+  ],
+  "connections": {},
+  "settings": {"executionOrder": "v1"}
+}' | jq '{id, name}'
+```
+
+#### Phase 2: Add First Processing Node → Test
+```bash
+# Update workflow to add first node
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X PUT "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" ...
+
+# Activate
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/activate" -H "X-N8N-API-KEY: ${N8N_API_KEY}"
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{WEBHOOK_PATH}" -H "Content-Type: application/json" -d '{}'
+
+# Test
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/webhook/{path}" -H "Content-Type: application/json" -d '{}'
+
+# Check result
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=1" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[0] | {id, status}'
 ```
 
-### Step 3: Check Execution Result
+**If status = "success"** → Proceed to add next node
+**If status = "error"** → Debug, fix, test again until success
+
+#### Phase 3: Add Next Node → Test
+Repeat Phase 2 for each additional node:
+1. Add the node to workflow (PUT)
+2. Add connection from previous node
+3. Test the workflow
+4. Verify the NEW node executed successfully
+5. Only proceed when status = "success"
+
+#### Phase 4: Final Verification
+After all nodes added:
+1. Run complete workflow end-to-end
+2. Verify final output is correct
+3. Check all nodes executed (not just last one)
+
+### Checking Individual Node Execution
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions?limit=1" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data[0] | {id, status, workflowId}'
+# Get detailed execution with all node results
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.runData | keys'
 ```
 
-### Step 4: If Failed - Debug
-Get error details:
-```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.error'
+This shows which nodes ran. Verify your newly added node is in the list.
+
+### Example: Building a 3-Node Workflow
+
+**Step 1**: Create with Webhook only → Test → ✓ Works
+
+**Step 2**: Add HTTP Request node → Test → ✓ Works (returns data)
+
+**Step 3**: Add Google Sheets node → Test → ✗ Error: "documentId required"
+- Fix: Ask user for spreadsheet ID, or note manual config needed
+- Test again → ✓ Works
+
+**Step 4**: Final test → All 3 nodes execute → Report success to user
+
+### What to Report to User
+
+**NEVER say:**
+- "Workflow created! Please test it."
+- "Here's the workflow, you'll need to configure..."
+- "The workflow is ready" (without testing)
+
+**ALWAYS say (after incremental build + test):**
+```
+✅ Workflow built and tested successfully!
+
+Build Progress:
+1. ✓ Webhook trigger - working
+2. ✓ Apify scraper - working (returned 100 results)
+3. ✓ Google Sheets - working (data saved)
+
+Final Test: ✓ Complete workflow executed successfully
+
+- Workflow: LA Dentists to Google Sheets
+- ID: abc123
+- URL: https://n8n.example.com/workflow/abc123
+- Status: Active
+
+Ready to use!
 ```
 
-### Step 5: Fix and Repeat
-- Analyze the error
-- Update the workflow using PUT
-- Go back to Step 2
-- **Keep iterating until execution status is "success"**
-
-### Step 6: Only Then Report to User
+**If manual config needed:**
 ```
-✅ Workflow created and tested successfully!
+✅ Workflow built and partially tested!
 
-- Workflow: {name}
-- ID: {id}
-- URL: {url}
-- Status: Active and working
-- Test execution: Completed successfully
+Build Progress:
+1. ✓ Webhook trigger - working
+2. ✓ Apify scraper - working (returned 100 results)
+3. ⚠ Google Sheets - requires manual setup
 
-The workflow is ready to use.
+Manual Step Required:
+The Google Sheets node needs you to select the spreadsheet in the n8n UI.
+This uses OAuth document picker which cannot be done via API.
+
+→ Open: https://n8n.example.com/workflow/abc123
+→ Click "Google Sheets" node
+→ Select your spreadsheet
+→ Save
+
+After that, the workflow will be fully functional.
 ```
-
-**NEVER tell the user:**
-- "Please test the workflow"
-- "You need to configure X in the UI"
-- "The workflow is ready" (if you haven't tested it)
-
-**ALWAYS:**
-- Test the workflow yourself
-- Debug any failures
-- Fix issues automatically
-- Only report success after confirmed working
-- If something CANNOT be fixed via API (like Google Sheets document selection), clearly explain what manual step is needed and WHY
 
 ---
 

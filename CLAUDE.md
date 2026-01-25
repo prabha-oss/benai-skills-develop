@@ -74,15 +74,30 @@ The skills will automatically create this file if missing and prompt for values.
 "credentials": {"openAiApi": {"id": "abc123", "name": "OpenAI Production"}}
 ```
 
-### Incremental Build-Test Process
+### Incremental Build-Test Process (MANDATORY)
 
-**Never build entire workflows at once.** Follow this mandatory process:
+**THE #1 RULE: Add ONE node → Test entire workflow → Repeat**
 
-1. Create workflow with trigger only → Test
-2. Add ONE node → Test → Verify node ran
-3. Add next node → Test → Verify
-4. Repeat until complete
-5. Report success only after all nodes tested
+```
+❌ WRONG: Add Node A → Add Node B → Add Node C → Test → Error → Which node failed???
+
+✅ RIGHT: Add Node A → Test ✓ → Add Node B → Test ✓ → Add Node C → Test ✓ → Done
+```
+
+**NEVER add two or more nodes at once. ALWAYS test after each single node.**
+
+| Step | Action | Must Do Before Next Step |
+|------|--------|--------------------------|
+| 1 | Create workflow with trigger only | Test - verify trigger works |
+| 2 | Add ONE node | Test - verify new node in runData |
+| 3 | Add next ONE node | Test - verify new node in runData |
+| 4 | Repeat step 3 | Test after EVERY node |
+| 5 | Report success | Only after ALL nodes individually tested |
+
+**Why this matters:**
+- If you add 3 nodes and get an error, you don't know which one failed
+- Testing after each node isolates problems immediately
+- Faster debugging, guaranteed working workflows
 
 ### Single Workflow Rule
 

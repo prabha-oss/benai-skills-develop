@@ -450,9 +450,11 @@ When creating or updating workflows, use this structure:
 - **Wrong**: "Workflow is ready to use!" (without executing it)
 - **Right**: Execute workflow, verify status=success, then report to user
 
-### 9. Building entire workflow at once then debugging
-- **Wrong**: Create workflow with all 5 nodes → test → error somewhere → hard to debug
-- **Right**: Add node 1 → test → add node 2 → test → add node 3 → test (incremental)
+### 9. Adding multiple nodes before testing (CRITICAL!)
+- **Wrong**: Add Node A → Add Node B → Add Node C → Test → Error (which node failed?)
+- **Wrong**: Add 2 nodes at once, test, then add 2 more
+- **Right**: Add ONE node → Test → Add ONE node → Test → Repeat (ALWAYS)
+- **Remember**: NEVER add more than one node without testing in between
 
 ### 10. Not verifying each node executed
 - **Wrong**: Check only final status, assume all nodes ran
@@ -466,20 +468,38 @@ When creating or updating workflows, use this structure:
 
 ## Incremental Build-Test Workflow (MANDATORY!)
 
-**STOP! READ THIS BEFORE BUILDING ANY WORKFLOW!**
+**STOP! THIS IS THE MOST IMPORTANT RULE!**
 
-You MUST follow this process EXACTLY. Do NOT skip the testing steps.
+---
 
-### THE RULE: Add ONE Node → Test → Verify → Then Next Node
+### ⚠️ THE GOLDEN RULE ⚠️
 
-After adding EACH node, you MUST:
-1. **Activate** the workflow
-2. **Execute** via webhook with test data
-3. **Check** execution status
-4. **Verify** the new node ran and produced correct output
-5. **ONLY THEN** add the next node
+## ADD ONE NODE → TEST → ADD ONE NODE → TEST → REPEAT
 
-**DO NOT** just keep adding nodes without testing. This is WRONG.
+---
+
+**NEVER add 2 or more nodes at once. NEVER.**
+
+```
+❌ ABSOLUTELY WRONG:
+   Add Webhook → Add Scraper → Add Transform → Add Sheets → Test → Error
+   (Which node failed? Nobody knows. Start over.)
+
+✅ THE ONLY CORRECT WAY:
+   Add Webhook → Test ✓
+   Add Scraper → Test ✓
+   Add Transform → Test ✓
+   Add Sheets → Test ✓
+   Done!
+```
+
+After adding EACH SINGLE node, you MUST:
+1. **Execute** the workflow via webhook
+2. **Check** execution status = "success"
+3. **Verify** the new node appears in runData
+4. **ONLY THEN** add the next single node
+
+**If you add two nodes without testing between them, you are doing it WRONG.**
 
 ### One Workflow, Keep Updating
 - Create workflow ONCE with POST → get workflow ID

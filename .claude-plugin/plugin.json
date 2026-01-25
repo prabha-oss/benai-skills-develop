@@ -1,7 +1,7 @@
 {
   "name": "benai-skills",
   "description": "BenAI expert skills for n8n workflow automation",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": {
     "name": "BenAI"
   },

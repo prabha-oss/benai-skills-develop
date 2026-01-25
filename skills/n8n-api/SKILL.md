@@ -59,6 +59,22 @@ After user provides values, update `.env` with the values using the Edit tool.
 
 ---
 
+## Node Selection Priority
+
+**PREFER native n8n nodes. Only use HTTP Request or Code nodes when necessary.**
+
+| Priority | Node Type | Use When |
+|----------|-----------|----------|
+| 1 | Native node | Built-in node exists (Slack, Sheets, OpenAI, etc.) |
+| 2 | HTTP Request | Native node has known issues OR no node exists for the API |
+| 3 | Code node | Complex transformation logic not possible with built-in nodes |
+
+**Always check the credentials template first** - if a native node is configured there, use it.
+
+**Never use mock data** - no placeholder URLs, no fake IDs, no "REPLACE_ME" values. Ask the user for real values.
+
+---
+
 ## API Methods Reference
 
 **CRITICAL**: The n8n API uses specific HTTP methods:
@@ -391,6 +407,16 @@ When creating or updating workflows, use this structure:
 ---
 
 ## Common Pitfalls (AVOID THESE!)
+
+### 0. Using HTTP Request when a native node exists
+- **Wrong**: Using HTTP Request to call Slack API when `n8n-nodes-base.slack` exists
+- **Right**: Use the native Slack node with credentials from template
+- **Exception**: Native node has known bug or missing feature - then HTTP Request is acceptable
+
+### 0b. Using mock/placeholder data
+- **Wrong**: `"url": "https://api.example.com/placeholder"` or `"documentId": "REPLACE_ME"`
+- **Right**: Use real URLs, real IDs, real credential references from template
+- **If missing**: Ask the user for real values, don't guess or mock
 
 ### 1. Using PATCH instead of PUT for updates
 - **Wrong**: `curl -X PATCH /api/v1/workflows/{id}`

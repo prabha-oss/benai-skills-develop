@@ -29,6 +29,51 @@ The skills will automatically create this file if missing and prompt for values.
 
 ## Build Philosophy
 
+### Node Selection Priority
+
+**ALWAYS prefer native n8n nodes over HTTP Request or Code nodes.**
+
+| Priority | Use When |
+|----------|----------|
+| 1. Native node | A built-in n8n node exists for the service (Slack, Google Sheets, OpenAI, etc.) |
+| 2. HTTP Request | Native node has known limitations or bugs, OR no native node exists |
+| 3. Code node | Complex logic that can't be done with built-in nodes |
+
+**Why native nodes?**
+- Pre-built authentication handling
+- Tested and maintained by n8n team
+- Better error messages
+- Simpler configuration
+- Credentials template compatibility
+
+**When HTTP Request is acceptable:**
+- Native node has a known bug or missing feature
+- API endpoint not supported by native node
+- Custom API not covered by any node
+
+### Never Mock Data
+
+**CRITICAL: Never use placeholder, fake, or mock data when building workflows.**
+
+- Use real API endpoints, not fake URLs
+- Use real webhook paths that will actually be called
+- Use real credential references from the template
+- If you don't have real data, ask the user for it
+
+**Wrong:**
+```json
+"url": "https://api.example.com/placeholder"
+"documentId": "REPLACE_WITH_REAL_ID"
+"apiKey": "your-api-key-here"
+```
+
+**Right:**
+```json
+"url": "https://api.openai.com/v1/chat/completions"
+"documentId": {"__rl": true, "mode": "id", "value": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"}
+"credentials": {"openAiApi": {"id": "abc123", "name": "OpenAI Production"}}
+```
+
 ### Incremental Build-Test Process
 
 **Never build entire workflows at once.** Follow this mandatory process:

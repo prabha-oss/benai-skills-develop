@@ -11,27 +11,130 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 
 ## Critical Rules (Memorize These)
 
-### 1. One Node at a Time
-```
-ADD ONE NODE → TEST → ADD ONE NODE → TEST → REPEAT
-```
-**NEVER add 2+ nodes without testing between them.**
+### 1. ALWAYS Load n8n-nodes Skill First
 
-### 2. Use Native Nodes First
+**MANDATORY**: Before adding ANY node to a workflow:
+1. Load the `n8n-nodes` skill to get correct node configuration
+2. Use the exact `typeVersion`, `parameters`, and structure from the reference
+3. If a node fails, reload `n8n-nodes` skill and check the configuration
+
+```
+BEFORE ADDING NODE → LOAD n8n-nodes SKILL → GET CONFIG → ADD NODE
+```
+
+**On Error**: If any node throws an error, ALWAYS check `n8n-nodes` skill for correct configuration before retrying.
+
+### 2. One Node at a Time + PIN After Each
+
+```
+ADD NODE → TEST → PIN RESPONSE → ADD NEXT NODE → TEST → PIN → REPEAT
+```
+
+**NEVER add 2+ nodes without testing and pinning between them.**
+
+### 3. PIN Everything for Speed
+
+**After EVERY successful node test, PIN the response data immediately:**
+
+```bash
+# After test succeeds, update workflow with pinned data
+curl -X PUT "${N8N_API_URL}/api/v1/workflows/{id}" \
+  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nodes": [...],
+    "pinData": {
+      "Node Name": [{"json": {...execution result...}}]
+    }
+  }'
+```
+
+**Why PIN?**
+- Pinned data is used instead of executing the node again
+- No external API calls on subsequent tests = FAST development
+- Each node only calls external APIs once, then uses pinned data
+
+### 4. Use Native Nodes First
+
 | Priority | Use When |
 |----------|----------|
 | 1. Native node | Built-in exists (Slack, Sheets, AI Agent Node) |
 | 2. HTTP Request | Native has issues OR no node exists |
 | 3. Code node | Complex logic only |
 
-### 3. No Mock Data
+### 5. No Mock Data
+
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 4. Test with 10 Items
+### 6. Test with 10 Items
+
 Always set `limit=10` or `maxResults=10` on data-fetching nodes.
 
-### 5. Pin After Fetch
-After external data fetch succeeds → PIN the data immediately for faster subsequent tests.
+---
+
+## Build Process (Follow Exactly)
+
+### Step 1: Load n8n-nodes Skill
+Before starting, load the `n8n-nodes` skill to have all node configurations available.
+
+### Step 2: Create Workflow with Trigger
+```
+1. Get trigger config from n8n-nodes skill
+2. Create workflow with trigger only
+3. Test trigger
+4. PIN trigger response
+```
+
+### Step 3: Add Each Node (Repeat for Every Node)
+```
+1. Load n8n-nodes skill → get node config
+2. Add ONE node to workflow
+3. Test workflow
+4. If ERROR → check n8n-nodes skill → fix → retry
+5. If SUCCESS → PIN the response immediately
+6. Move to next node
+```
+
+### Step 4: Final Verification
+```
+1. All nodes added and tested
+2. All responses pinned
+3. Workflow activated
+4. Report success to user
+```
+
+---
+
+## Pinning Data Format
+
+When updating workflow with pinned data:
+
+```json
+{
+  "name": "Workflow Name",
+  "nodes": [...],
+  "connections": {...},
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {"message": "test"},
+          "headers": {...}
+        }
+      }
+    ],
+    "HTTP Request": [
+      {"json": {"result": "data1"}},
+      {"json": {"result": "data2"}}
+    ]
+  }
+}
+```
+
+**Rules:**
+- `pinData` keys are node NAMES (not IDs)
+- Value is an array of items (even for single item)
+- Each item has `json` property with the data
 
 ---
 
@@ -96,21 +199,10 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
       "main": [[{"node": "Target Node Name", "type": "main", "index": 0}]]
     }
   },
+  "pinData": {},
   "settings": {"executionOrder": "v1"}
 }
 ```
-
----
-
-## Build Process Summary
-
-1. Create workflow with trigger only → Test
-2. Add ONE node → Test → Verify in runData
-3. PIN data if external fetch
-4. Repeat step 2-3 for each node
-5. Report only after all nodes tested
-
-**For detailed step-by-step process**: See [build-process.md](build-process.md)
 
 ---
 
@@ -121,6 +213,16 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 | [api-reference.md](api-reference.md) | All API commands (CRUD, executions, tags, variables, source control) |
 | [build-process.md](build-process.md) | Step-by-step build-test workflow, pinning data, verification |
 | [pitfalls.md](pitfalls.md) | Common mistakes, error handling, debugging |
+
+---
+
+## Integration with Other Skills
+
+| Skill | When to Use |
+|-------|-------------|
+| **n8n-nodes** | **ALWAYS** load before adding any node. Contains correct typeVersions, parameters, and structures for 40+ nodes |
+| **n8n-credentials** | Get full node configs from template (credentials + parameters) |
+| **n8n-expressions** | Expression syntax for dynamic values (`{{ $json.field }}`) |
 
 ---
 
@@ -135,14 +237,6 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 
 ---
 
-## Integration with Other Skills
-
-- **n8n-credentials**: Get full node configs from template (credentials + parameters + typeVersion)
-- **n8n-nodes**: Reference configurations for common nodes
-- **n8n-expressions**: Expression syntax for dynamic values
-
----
-
 ## What to Report to User
 
 **After successful build:**
@@ -150,13 +244,14 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 ✅ Workflow built and tested successfully!
 
 Build Progress:
-1. ✓ Webhook trigger - working
-2. ✓ Scraper - working (10 results)
-3. ✓ Google Sheets - working
+1. ✓ Webhook trigger - working (pinned)
+2. ✓ HTTP Request - working (pinned, 10 results)
+3. ✓ Google Sheets - working (pinned)
 
 - Workflow: My Workflow
 - URL: https://n8n.example.com/workflow/abc123
 - Status: Active
+- All data pinned for fast re-testing
 ```
 
 **If manual config needed:**

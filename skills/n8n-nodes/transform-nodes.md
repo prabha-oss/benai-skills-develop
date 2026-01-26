@@ -601,6 +601,213 @@ Nodes for data transformation, logic, and workflow control.
 
 ---
 
+## Looping Patterns
+
+### Split In Batches Loop (Most Common)
+
+**Use case:** Process items one at a time or in batches, loop back to continue with next batch.
+
+**Pattern from real workflow ("Loop Over Ads"):**
+
+```json
+{
+  "nodes": [
+    {
+      "id": "loop-1",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [450, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "process-1",
+      "name": "Process Item",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [650, 300],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "uuid-1",
+              "name": "processed",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Get Items": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [{ "node": "Process Item", "type": "main", "index": 0 }]
+      ]
+    },
+    "Process Item": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    }
+  }
+}
+```
+
+**Key points:**
+- Split In Batches output 0 = "done" (empty when more items remain)
+- Split In Batches output 1 = current batch items
+- Last node in loop connects BACK to Split In Batches input
+- Loop continues until all items processed, then exits via output 0
+
+**Connection pattern:**
+```
+Get Items → Loop Over Items ─┬─→ [output 0: Done] → Next Step
+                             │
+                             └─→ [output 1: Loop] → Process → Save ─┐
+                                      ↑                              │
+                                      └──────────────────────────────┘
+```
+
+### If/Else Branch with Loop Back
+
+**Use case:** Check condition, process if needed, loop back for retry or continuation.
+
+```json
+{
+  "connections": {
+    "Check Condition": {
+      "main": [
+        [{ "node": "Process New", "type": "main", "index": 0 }],
+        [{ "node": "Skip Existing", "type": "main", "index": 0 }]
+      ]
+    },
+    "Process New": {
+      "main": [[{ "node": "Save Result", "type": "main", "index": 0 }]]
+    },
+    "Save Result": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    },
+    "Skip Existing": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    }
+  }
+}
+```
+
+**Key points:**
+- Both branches (true and false) loop back to Split In Batches
+- Ensures every item is processed and loop continues
+
+### Wait + Retry Loop
+
+**Use case:** Wait between API calls, retry on failure.
+
+```json
+{
+  "nodes": [
+    {
+      "id": "wait-1",
+      "name": "Wait Between Calls",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [450, 300],
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 2,
+        "unit": "seconds"
+      }
+    }
+  ],
+  "connections": {
+    "API Call": {
+      "main": [[{ "node": "Check Success", "type": "main", "index": 0 }]]
+    },
+    "Check Success": {
+      "main": [
+        [{ "node": "Continue", "type": "main", "index": 0 }],
+        [{ "node": "Wait Between Calls", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait Between Calls": {
+      "main": [[{ "node": "API Call", "type": "main", "index": 0 }]]
+    }
+  }
+}
+```
+
+### Pagination Loop
+
+**Use case:** Fetch paginated API results until no more pages.
+
+```json
+{
+  "nodes": [
+    {
+      "id": "fetch-1",
+      "name": "Fetch Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [450, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.example.com/items",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "page", "value": "={{ $json.nextPage ?? 1 }}" },
+            { "name": "limit", "value": "100" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "check-1",
+      "name": "Has More Pages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [650, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "version": 2, "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.hasNextPage }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Fetch Page": {
+      "main": [[{ "node": "Process Items", "type": "main", "index": 0 }]]
+    },
+    "Process Items": {
+      "main": [[{ "node": "Has More Pages", "type": "main", "index": 0 }]]
+    },
+    "Has More Pages": {
+      "main": [
+        [{ "node": "Fetch Page", "type": "main", "index": 0 }],
+        [{ "node": "Done", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}
+```
+
+---
+
 ## Quick Reference: Transform Node typeVersions
 
 | Node | typeVersion |

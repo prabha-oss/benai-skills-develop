@@ -18,7 +18,7 @@ Working configurations for the most commonly used n8n nodes. Copy these as your 
 | Webhook, Schedule, Form, Chat triggers | `triggers.md` |
 | AI Agent, OpenAI, Anthropic, Memory, Vector Store | `ai-nodes.md` |
 | Google Sheets, Airtable, Postgres, Slack, Gmail, Telegram | `data-nodes.md` |
-| Set, If, Switch, Filter, Code, HTTP Request, Merge | `transform-nodes.md` |
+| Set, If, Switch, Filter, Code, HTTP Request, Merge, Loops | `transform-nodes.md` |
 
 ```
 BEFORE ADDING NODE → READ the matching reference file → GET exact config → ADD node
@@ -115,7 +115,7 @@ See [data-nodes.md](data-nodes.md) for create configurations.
 | [triggers.md](triggers.md) | Webhook, Schedule, Form, Chat, Airtable, Gmail, Slack, Telegram, WhatsApp, HubSpot, Stripe, Shopify, Postgres, Google Sheets triggers |
 | [ai-nodes.md](ai-nodes.md) | AI Agent, OpenAI/Anthropic Chat Models, Embeddings, Memory, Vector Store + connection patterns |
 | [data-nodes.md](data-nodes.md) | Google Sheets, Airtable, Notion, Postgres, MySQL, Slack, Gmail, Telegram, Discord |
-| [transform-nodes.md](transform-nodes.md) | Set, If, Switch, Filter, Sort, Split Out, Merge, Code, HTTP Request, Wait, Respond to Webhook |
+| [transform-nodes.md](transform-nodes.md) | Set, If, Switch, Filter, Sort, Split Out, Merge, Code, HTTP Request, Wait, Respond to Webhook, **Looping Patterns** |
 
 ---
 
@@ -155,3 +155,22 @@ See [data-nodes.md](data-nodes.md) for create configurations.
   }
 }
 ```
+
+**Split In Batches Loop (items loop back):**
+```json
+{
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [{ "node": "Process Item", "type": "main", "index": 0 }]
+      ]
+    },
+    "Process Item": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    }
+  }
+}
+```
+
+See [transform-nodes.md](transform-nodes.md) for more looping patterns (pagination, retry, etc.).

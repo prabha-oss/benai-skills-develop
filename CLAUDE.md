@@ -35,9 +35,12 @@ The skills will automatically create this file if missing and prompt for values.
 
 | Priority | Use When |
 |----------|----------|
-| 1. Native node | A built-in n8n node exists for the service (Slack, Google Sheets, OpenAI, etc.) |
-| 2. HTTP Request | Native node has known limitations or bugs, OR no native node exists |
-| 3. Code node | Complex logic that can't be done with built-in nodes |
+| 1. Native node | A built-in n8n node exists for the service (Slack, Google Sheets, etc.) |
+| 2. **AI Agent node** | For ANY AI/LLM task - ALWAYS prefer over HTTP Request to OpenAI/Anthropic APIs |
+| 3. HTTP Request | Native has issues OR no node exists AND not an AI task |
+| 4. Code node | Complex logic that can't be done with built-in nodes |
+
+**For AI tasks: ALWAYS use AI Agent node + Chat Model (OpenAI/Anthropic), NOT HTTP Request.**
 
 **Why native nodes?**
 - Pre-built authentication handling
@@ -50,6 +53,7 @@ The skills will automatically create this file if missing and prompt for values.
 - Native node has a known bug or missing feature
 - API endpoint not supported by native node
 - Custom API not covered by any node
+- **NOT for AI/LLM calls** - use AI Agent node instead
 
 ### Node Discovery Flow
 

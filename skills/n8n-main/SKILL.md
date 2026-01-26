@@ -78,9 +78,12 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 | Priority | Use When |
 |----------|----------|
-| 1. Native node | Built-in exists (Slack, Sheets, AI Agent Node) |
-| 2. HTTP Request | Native has issues OR no node exists |
-| 3. Code node | Complex logic only |
+| 1. Native node | Built-in exists (Slack, Sheets, etc.) |
+| 2. **AI Agent node** | For ANY AI/LLM task (prefer over HTTP Request to OpenAI/Anthropic) |
+| 3. HTTP Request | Native has issues OR no node exists AND not an AI task |
+| 4. Code node | Complex logic only |
+
+**For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
 ### 5. No Mock Data
 

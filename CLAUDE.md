@@ -112,6 +112,18 @@ The skills will automatically create this file if missing and prompt for values.
 
 This reveals array handling issues, performance problems, and edge cases that single-item testing misses.
 
+### Pin Data After Fetching
+
+**After a node successfully fetches external data, PIN the output immediately.**
+
+```
+Add Scraper → Test → SUCCESS → PIN DATA → Add Next Node → Test (uses pinned data - instant!)
+```
+
+**Why:** Avoids repeated API calls, saves cost, speeds up development, ensures consistent test data.
+
+**Pin these nodes:** Scrapers, HTTP requests to external APIs, AI/LLM nodes, any slow/expensive operation.
+
 ### Single Workflow Rule
 
 - Create ONE workflow (POST)

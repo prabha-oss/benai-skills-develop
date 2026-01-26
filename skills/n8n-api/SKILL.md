@@ -529,6 +529,89 @@ When configuring nodes that fetch data:
 - Exposes edge cases in data transformation
 - Ensures the workflow handles multiple items correctly
 
+---
+
+### Pin Data After Successful Execution
+
+**CRITICAL: After a node successfully fetches external data, PIN the data immediately.**
+
+Pinning saves the node's output so subsequent test runs use cached data instead of making new API calls.
+
+```
+✅ CORRECT WORKFLOW:
+1. Add scraper node → Execute → SUCCESS (got 10 real items)
+2. PIN the scraper node's output data
+3. Add transform node → Execute (uses pinned data - instant!)
+4. PIN the transform node's output
+5. Add storage node → Execute (uses pinned data - instant!)
+6. Continue building...
+```
+
+**Why pin data?**
+- **Speed**: No waiting for slow API calls on every test
+- **Cost**: Avoid repeated API charges (Apify, OpenAI, etc.)
+- **Consistency**: Same test data every run
+- **Reliability**: External APIs can fail/change - pinned data is stable
+
+**How to pin via API:**
+
+After successful execution, update the workflow with pinned data:
+
+```bash
+# 1. Get execution data
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.runData["Node Name"]'
+
+# 2. Update workflow with pinned data in the node
+curl -s -X PUT "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" \
+  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nodes": [
+      {
+        "id": "node-id",
+        "name": "Scraper",
+        "type": "...",
+        "pinData": {
+          "Scraper": [
+            {"json": {"name": "Item 1", ...}},
+            {"json": {"name": "Item 2", ...}}
+          ]
+        }
+      }
+    ],
+    ...
+  }'
+```
+
+**Workflow-level pinned data structure:**
+```json
+{
+  "name": "My Workflow",
+  "nodes": [...],
+  "connections": {...},
+  "pinData": {
+    "Scraper Node": [
+      {"json": {"field1": "value1"}},
+      {"json": {"field2": "value2"}}
+    ],
+    "HTTP Request": [
+      {"json": {"response": "data"}}
+    ]
+  }
+}
+```
+
+**When to pin:**
+- After scraper/crawler nodes fetch data
+- After HTTP requests to external APIs
+- After AI/LLM nodes generate responses
+- After any slow or expensive operation
+
+**When NOT to pin:**
+- Trigger nodes (webhooks, schedules)
+- Final output nodes (Respond to Webhook)
+- When you need fresh data for testing
+
 ### One Workflow, Keep Updating
 - Create workflow ONCE with POST → get workflow ID
 - All subsequent changes use PUT to the SAME workflow ID

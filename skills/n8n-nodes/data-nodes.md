@@ -18,10 +18,12 @@ Nodes for storing data, databases, and sending messages.
 
 ## Auto-Create Tables
 
-**Google Sheets and Airtable can create new tables/sheets if they don't exist.**
+**Google Sheets can create new spreadsheets/sheets via API.**
 
-When the user requests a workflow that saves to a spreadsheet or table that doesn't exist yet:
-1. Use the "create" operations first
+**Airtable CANNOT create tables via n8n.** User must create tables manually in Airtable UI first.
+
+When the user requests a workflow that saves to a spreadsheet:
+1. Use the "create" operations first (Google Sheets only)
 2. Then proceed with append/update operations
 
 ---
@@ -134,56 +136,71 @@ When the user requests a workflow that saves to a spreadsheet or table that does
 
 ## Airtable
 
-**Create new table:**
+### CRITICAL: Airtable Limitations
+
+**n8n Airtable v2 node only has TWO resources:**
+- `base` → `getMany`, `getSchema` operations
+- `record` → `create`, `delete`, `get`, `search`, `update`, `upsert` operations
+
+**There is NO `table` resource. You CANNOT create tables via n8n.**
+User must create tables manually in Airtable UI.
+
+### CRITICAL: Field Names Must Match EXACTLY
+
+Field names are case-sensitive and space-sensitive:
+
+```
+❌ WRONG: "GoogleMapsURL"    → Error: Unknown field name
+✅ RIGHT: "Google Maps URL"  → Works (matches Airtable field)
+
+❌ WRONG: "FitScore"         → Error: Unknown field name
+✅ RIGHT: "Fit Score"        → Works (matches Airtable field)
+```
+
+**ALWAYS use `getSchema` first to get exact field names before creating records.**
+
+### CRITICAL: Parameter Names
+
+Use `base` and `table`, NOT `baseId` and `tableId`:
+
+```
+❌ WRONG: "baseId", "tableId"  → Error: WorkflowHasIssuesError
+✅ RIGHT: "base", "table"      → Works
+```
+
+### Step 1: Get Schema (ALWAYS DO THIS FIRST)
+
+Before writing records, fetch the exact field names:
+
 ```json
 {
-  "id": "airtable-create-table-1",
-  "name": "Create Airtable Table",
+  "id": "airtable-schema-1",
+  "name": "Get Airtable Schema",
   "type": "n8n-nodes-base.airtable",
   "typeVersion": 2.1,
   "position": [450, 300],
   "parameters": {
-    "resource": "table",
-    "operation": "create",
-    "baseId": {
+    "resource": "base",
+    "operation": "getSchema",
+    "base": {
       "__rl": true,
       "mode": "id",
       "value": "appXXXXXXXXXXXXXX"
-    },
-    "name": "={{ $json.tableName ?? 'New Table' }}",
-    "fields": [
-      {
-        "name": "Name",
-        "type": "singleLineText"
-      },
-      {
-        "name": "Email",
-        "type": "email"
-      },
-      {
-        "name": "Status",
-        "type": "singleSelect",
-        "options": {
-          "choices": [
-            { "name": "Active" },
-            { "name": "Inactive" }
-          ]
-        }
-      }
-    ]
+    }
   },
   "credentials": {
-    "airtableTokenApi": {
+    "airtableOAuth2Api": {
       "id": "cred-id",
-      "name": "Airtable Token"
+      "name": "Airtable OAuth2"
     }
   }
 }
 ```
 
-**Airtable field types:** `singleLineText`, `multilineText`, `email`, `url`, `number`, `currency`, `percent`, `date`, `dateTime`, `checkbox`, `singleSelect`, `multipleSelects`, `attachment`
+This returns all tables and their exact field names.
 
-**Create record:**
+### Step 2: Create Record (use exact field names from schema)
+
 ```json
 {
   "id": "airtable-1",
@@ -193,12 +210,12 @@ When the user requests a workflow that saves to a spreadsheet or table that does
   "position": [650, 300],
   "parameters": {
     "operation": "create",
-    "baseId": {
+    "base": {
       "__rl": true,
       "mode": "id",
       "value": "appXXXXXXXXXXXXXX"
     },
-    "tableId": {
+    "table": {
       "__rl": true,
       "mode": "id",
       "value": "tblXXXXXXXXXXXXXX"
@@ -214,13 +231,57 @@ When the user requests a workflow that saves to a spreadsheet or table that does
     "options": {}
   },
   "credentials": {
-    "airtableTokenApi": {
+    "airtableOAuth2Api": {
       "id": "cred-id",
-      "name": "Airtable Token"
+      "name": "Airtable OAuth2"
     }
   }
 }
 ```
+
+### Airtable Workflow Pattern
+
+```
+1. User provides base ID and table ID
+2. FIRST: Add getSchema node → test → get exact field names
+3. THEN: Add record create node using exact field names from schema
+4. Test with real data
+```
+
+### Other Operations
+
+**Search records:**
+```json
+{
+  "parameters": {
+    "operation": "search",
+    "base": {"__rl": true, "mode": "id", "value": "appXXX"},
+    "table": {"__rl": true, "mode": "id", "value": "tblXXX"},
+    "filterByFormula": "={Status}='Active'",
+    "options": {"limit": 10}
+  }
+}
+```
+
+**Update record:**
+```json
+{
+  "parameters": {
+    "operation": "update",
+    "base": {"__rl": true, "mode": "id", "value": "appXXX"},
+    "table": {"__rl": true, "mode": "id", "value": "tblXXX"},
+    "id": "={{ $json.recordId }}",
+    "columns": {
+      "mappingMode": "defineBelow",
+      "value": {
+        "Status": "Completed"
+      }
+    }
+  }
+}
+```
+
+**Operations:** `create`, `delete`, `get`, `search`, `update`, `upsert`
 
 ---
 

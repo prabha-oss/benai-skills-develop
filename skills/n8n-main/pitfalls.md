@@ -4,6 +4,7 @@ Mistakes to avoid and how to debug errors.
 
 ## Contents
 - [Command Format Mistakes](#command-format-mistakes)
+- [Airtable Mistakes](#airtable-mistakes-critical)
 - [Critical Mistakes](#critical-mistakes)
 - [API Mistakes](#api-mistakes)
 - [Build Process Mistakes](#build-process-mistakes)
@@ -85,6 +86,65 @@ jq '.nodes[] | select(.credentials)'
 ```
 
 **Why**: Bash interprets `!` for history expansion even inside quotes, turning `!=` into `\!=` which jq can't parse.
+
+---
+
+## Airtable Mistakes (CRITICAL)
+
+### Airtable Does NOT Support Table Creation
+
+❌ **Wrong**: Trying to use `resource: "table"` with `operation: "create"`
+```json
+{
+  "resource": "table",
+  "operation": "create"
+}
+// ERROR: "Could not get parameter: operation"
+```
+
+✅ **Right**: User must create tables manually in Airtable UI. n8n only supports:
+- `resource: "base"` → `getMany`, `getSchema`
+- `resource: "record"` → `create`, `delete`, `get`, `search`, `update`, `upsert`
+
+### Wrong Parameter Names (base vs baseId)
+
+❌ **Wrong**: Using `baseId` and `tableId`
+```json
+{
+  "baseId": {"__rl": true, "mode": "id", "value": "appXXX"},
+  "tableId": {"__rl": true, "mode": "id", "value": "tblXXX"}
+}
+// ERROR: WorkflowHasIssuesError
+```
+
+✅ **Right**: Use `base` and `table`
+```json
+{
+  "base": {"__rl": true, "mode": "id", "value": "appXXX"},
+  "table": {"__rl": true, "mode": "id", "value": "tblXXX"}
+}
+```
+
+### Field Names Must Match EXACTLY
+
+❌ **Wrong**: Using camelCase or incorrect spacing
+```json
+{
+  "GoogleMapsURL": "...",
+  "FitScore": "..."
+}
+// ERROR: Unknown field name: "GoogleMapsURL"
+```
+
+✅ **Right**: Use EXACT field names from Airtable (with spaces)
+```json
+{
+  "Google Maps URL": "...",
+  "Fit Score": "..."
+}
+```
+
+**Solution**: Always use `getSchema` operation first to fetch exact field names before creating records.
 
 ---
 

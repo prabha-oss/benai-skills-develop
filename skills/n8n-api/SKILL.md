@@ -9,6 +9,23 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 
 ---
 
+## Before Starting (MANDATORY)
+
+**You MUST read these files using the Read tool before building any workflow:**
+
+1. **Read `pitfalls.md`** - Command format rules, common mistakes (CRITICAL)
+2. **Read `build-process.md`** - Step-by-step build and pin process
+3. **Load `n8n-nodes` skill** - Get correct node configurations
+4. **Load `n8n-credentials` skill** - Get credentials from template
+
+```
+BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → LOAD n8n-nodes skill
+```
+
+**Do NOT proceed until you have read these files.**
+
+---
+
 ## Critical Rules (Memorize These)
 
 ### 1. ALWAYS Load n8n-nodes Skill First

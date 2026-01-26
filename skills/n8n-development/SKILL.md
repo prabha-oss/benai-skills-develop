@@ -9,6 +9,27 @@ Write effective JavaScript and Python code for n8n Code nodes.
 
 ---
 
+## Before Writing Code (MANDATORY)
+
+**You MUST read the appropriate reference file using the Read tool:**
+
+| Writing | Read This First |
+|---------|-----------------|
+| JavaScript code | `javascript.md` |
+| Python code | `python.md` |
+| Node configuration | `node-config.md` |
+
+```
+BEFORE WRITING CODE → READ the matching reference file → FOLLOW the patterns exactly
+```
+
+**Key reminders:**
+- Code nodes use **plain JavaScript/Python** - NOT expression syntax `{{ }}`
+- Always return an **array** of items: `return [{ json: {...} }]`
+- Use `$input.all()` or `$input.first()` to access input data
+
+---
+
 ## The Golden Rule
 
 **Code nodes use plain JavaScript/Python - NOT expression syntax!**

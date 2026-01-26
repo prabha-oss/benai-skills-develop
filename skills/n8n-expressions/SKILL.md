@@ -9,6 +9,24 @@ Master n8n's expression language for dynamic data access and transformation.
 
 ---
 
+## Before Writing Expressions (MANDATORY)
+
+**Key things to remember:**
+
+1. **Webhook data is under `.body`** - NOT at `$json` root! Use `$json.body.fieldName`
+2. **Code nodes use plain JS** - NO `{{ }}` syntax in Code nodes
+3. **Expressions need `={{ }}`** - The `=` prefix is required in n8n parameter fields
+
+```
+COMMON MISTAKE: {{ $json.name }}     → WRONG (missing = prefix or wrong location)
+CORRECT:        ={{ $json.body.name }} → For webhook body data in parameter fields
+CORRECT:        $input.first().json.body.name → In Code nodes (plain JS)
+```
+
+**Read the sections below for the specific syntax you need.**
+
+---
+
 ## The Fundamental Rule
 
 **All dynamic content requires double curly braces:**

@@ -9,6 +9,22 @@ description: Get full node configurations (credentials + parameters) from templa
 
 ---
 
+## Before Starting (MANDATORY)
+
+**You MUST complete these steps before using this skill:**
+
+1. **Read `.env` file** - Check N8N_API_URL, N8N_API_KEY, N8N_CREDENTIALS_TEMPLATE_URL
+2. **If `.env` missing or incomplete** - Create it or ask user for values
+3. **Load `n8n-nodes` skill** - To know correct typeVersions and parameters
+
+```
+READ .env → VERIFY all values set → LOAD n8n-nodes skill → FETCH template
+```
+
+**Do NOT proceed until .env is complete and n8n-nodes skill is loaded.**
+
+---
+
 ## CRITICAL: Copy Full Configuration, Not Just Credentials
 
 **IMPORTANT**: When using template nodes, you MUST copy the **ENTIRE node configuration**, not just credentials:

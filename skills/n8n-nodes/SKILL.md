@@ -9,6 +9,25 @@ Working configurations for the most commonly used n8n nodes. Copy these as your 
 
 ---
 
+## Before Using Nodes (MANDATORY)
+
+**You MUST read the appropriate reference file using the Read tool before adding any node:**
+
+| Adding This Type | Read This File First |
+|------------------|---------------------|
+| Webhook, Schedule, Form, Chat triggers | `triggers.md` |
+| AI Agent, OpenAI, Anthropic, Memory, Vector Store | `ai-nodes.md` |
+| Google Sheets, Airtable, Postgres, Slack, Gmail, Telegram | `data-nodes.md` |
+| Set, If, Switch, Filter, Code, HTTP Request, Merge | `transform-nodes.md` |
+
+```
+BEFORE ADDING NODE → READ the matching reference file → GET exact config → ADD node
+```
+
+**Do NOT guess node configurations. Always read the reference file first.**
+
+---
+
 ## Node Selection Priority
 
 **ALWAYS prefer native nodes over HTTP Request or Code nodes.**

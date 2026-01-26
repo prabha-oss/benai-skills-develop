@@ -136,7 +136,29 @@ When the user requests a workflow that saves to a spreadsheet:
 
 ## Airtable
 
-### CRITICAL: Airtable Limitations
+### CRITICAL: Required Parameters (COPY EXACTLY)
+
+**Every Airtable node MUST have these parameters or it will fail:**
+
+```json
+{
+  "parameters": {
+    "authentication": "airtableOAuth2Api",  // REQUIRED - without this, defaults to wrong auth type
+    "resource": "base",                      // REQUIRED for getSchema - without this, WorkflowHasIssuesError
+    "operation": "getSchema",
+    "base": {...}
+  },
+  "credentials": {
+    "airtableOAuth2Api": {...}              // MUST match authentication parameter
+  }
+}
+```
+
+**Common errors from missing parameters:**
+- Missing `authentication` → "Node does not have any credentials set for airtableTokenApi"
+- Missing `resource` → "WorkflowHasIssuesError: The workflow has issues"
+
+### Airtable Resources and Operations
 
 **n8n Airtable v2 node only has TWO resources:**
 - `base` → `getMany`, `getSchema` operations

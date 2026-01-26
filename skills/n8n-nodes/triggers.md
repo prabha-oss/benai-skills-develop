@@ -40,10 +40,12 @@ Starting points for workflow execution.
 ```
 
 **Response modes:**
-- `onReceived` - Respond immediately
-- `lastNode` - Wait for workflow to complete
-- `responseNode` - Wait for Respond to Webhook node
+- `onReceived` - Respond immediately with `{"message": "Workflow was started"}` (async - need to poll executions)
+- `lastNode` - Wait for workflow to complete and return last node's output (sync - get data immediately)
+- `responseNode` - Wait for Respond to Webhook node (sync - custom response)
 - `streaming` - Stream response in real-time (v2.1+)
+
+**For schema fetching, use `lastNode`** to get the data directly in the webhook response instead of polling executions.
 
 **Authentication options:**
 - `none` - No authentication

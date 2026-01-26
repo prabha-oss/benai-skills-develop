@@ -1,14 +1,18 @@
 # Data & Communication Nodes
 
-Nodes for storing data and sending messages.
+Nodes for storing data, databases, and sending messages.
 
 ## Contents
 - [Auto-Create Tables](#auto-create-tables)
 - [Google Sheets](#google-sheets)
 - [Airtable](#airtable)
 - [Notion](#notion)
+- [Postgres](#postgres)
+- [MySQL](#mysql)
 - [Slack](#slack)
 - [Gmail](#gmail)
+- [Telegram](#telegram)
+- [Discord](#discord)
 
 ---
 
@@ -262,6 +266,145 @@ When the user requests a workflow that saves to a spreadsheet or table that does
 
 ---
 
+## Postgres
+
+**Execute query:**
+```json
+{
+  "id": "postgres-1",
+  "name": "Postgres",
+  "type": "n8n-nodes-base.postgres",
+  "typeVersion": 2.6,
+  "position": [650, 300],
+  "parameters": {
+    "operation": "executeQuery",
+    "query": "SELECT * FROM users WHERE status = $1 LIMIT 10",
+    "options": {
+      "queryParameters": "active"
+    }
+  },
+  "credentials": {
+    "postgres": {
+      "id": "cred-id",
+      "name": "Postgres"
+    }
+  }
+}
+```
+
+**Insert rows:**
+```json
+{
+  "parameters": {
+    "operation": "insert",
+    "table": {
+      "__rl": true,
+      "mode": "list",
+      "value": "users"
+    },
+    "columns": {
+      "mappingMode": "autoMapInputData",
+      "value": {}
+    },
+    "options": {}
+  }
+}
+```
+
+**Update rows:**
+```json
+{
+  "parameters": {
+    "operation": "update",
+    "table": {
+      "__rl": true,
+      "mode": "list",
+      "value": "users"
+    },
+    "columns": {
+      "mappingMode": "defineBelow",
+      "value": {
+        "status": "={{ $json.status }}",
+        "updated_at": "={{ $now.toISO() }}"
+      },
+      "matchingColumns": ["id"]
+    }
+  }
+}
+```
+
+**Upsert (Insert or Update):**
+```json
+{
+  "parameters": {
+    "operation": "upsert",
+    "table": {
+      "__rl": true,
+      "mode": "list",
+      "value": "users"
+    },
+    "columns": {
+      "mappingMode": "autoMapInputData",
+      "value": {},
+      "matchingColumns": ["email"]
+    }
+  }
+}
+```
+
+**Operations:** `executeQuery`, `insert`, `update`, `upsert`, `select`, `deleteTable`
+
+---
+
+## MySQL
+
+**Execute query:**
+```json
+{
+  "id": "mysql-1",
+  "name": "MySQL",
+  "type": "n8n-nodes-base.mySql",
+  "typeVersion": 2.5,
+  "position": [650, 300],
+  "parameters": {
+    "operation": "executeQuery",
+    "query": "SELECT * FROM products WHERE category = ? LIMIT 10",
+    "options": {
+      "queryParameters": "electronics"
+    }
+  },
+  "credentials": {
+    "mySql": {
+      "id": "cred-id",
+      "name": "MySQL"
+    }
+  }
+}
+```
+
+**Insert rows:**
+```json
+{
+  "parameters": {
+    "operation": "insert",
+    "table": {
+      "__rl": true,
+      "mode": "list",
+      "value": "orders"
+    },
+    "columns": {
+      "mappingMode": "autoMapInputData",
+      "value": {}
+    },
+    "options": {}
+  }
+}
+```
+
+**Operations:** `executeQuery`, `insert`, `update`, `upsert`, `select`, `deleteTable`
+
+---
+
 ## Slack
 
 **Send message:**
@@ -344,3 +487,143 @@ When the user requests a workflow that saves to a spreadsheet or table that does
   }
 }
 ```
+
+---
+
+## Telegram
+
+**Send message:**
+```json
+{
+  "id": "telegram-1",
+  "name": "Telegram",
+  "type": "n8n-nodes-base.telegram",
+  "typeVersion": 1.2,
+  "position": [650, 300],
+  "parameters": {
+    "resource": "message",
+    "operation": "sendMessage",
+    "chatId": "={{ $json.chatId }}",
+    "text": "={{ $json.message }}",
+    "additionalFields": {}
+  },
+  "credentials": {
+    "telegramApi": {
+      "id": "cred-id",
+      "name": "Telegram API"
+    }
+  }
+}
+```
+
+**Send photo:**
+```json
+{
+  "parameters": {
+    "resource": "message",
+    "operation": "sendPhoto",
+    "chatId": "={{ $json.chatId }}",
+    "file": "={{ $json.imageUrl }}",
+    "additionalFields": {
+      "caption": "={{ $json.caption }}"
+    }
+  }
+}
+```
+
+**Send document:**
+```json
+{
+  "parameters": {
+    "resource": "message",
+    "operation": "sendDocument",
+    "chatId": "={{ $json.chatId }}",
+    "file": "={{ $json.fileUrl }}",
+    "additionalFields": {}
+  }
+}
+```
+
+**Resources:** `chat`, `callback`, `file`, `message`
+
+**Message operations:** `sendMessage`, `sendPhoto`, `sendDocument`, `sendVideo`, `sendAudio`, `sendAnimation`, `sendSticker`, `sendLocation`, `sendMediaGroup`, `deleteMessage`, `pinChatMessage`, `unpinChatMessage`
+
+---
+
+## Discord
+
+**Send message:**
+```json
+{
+  "id": "discord-1",
+  "name": "Discord",
+  "type": "n8n-nodes-base.discord",
+  "typeVersion": 2,
+  "position": [650, 300],
+  "parameters": {
+    "authentication": "botToken",
+    "resource": "message",
+    "operation": "send",
+    "guildId": {
+      "__rl": true,
+      "mode": "list",
+      "value": "SERVER_ID"
+    },
+    "channelId": {
+      "__rl": true,
+      "mode": "list",
+      "value": "CHANNEL_ID"
+    },
+    "content": "={{ $json.message }}"
+  },
+  "credentials": {
+    "discordBotApi": {
+      "id": "cred-id",
+      "name": "Discord Bot"
+    }
+  }
+}
+```
+
+**Send via webhook (no bot required):**
+```json
+{
+  "parameters": {
+    "authentication": "webhook",
+    "content": "={{ $json.message }}",
+    "options": {
+      "username": "Notification Bot",
+      "avatarUrl": "https://example.com/avatar.png"
+    }
+  },
+  "credentials": {
+    "discordWebhookApi": {
+      "id": "cred-id",
+      "name": "Discord Webhook"
+    }
+  }
+}
+```
+
+**Connection types:**
+- `botToken` - Bot Token (full API access)
+- `oAuth2` - OAuth2 (user-level access)
+- `webhook` - Webhook (simple message sending)
+
+**Operations:** `send`, `get`, `getAll`, `deleteMessage`, `react`
+
+---
+
+## Quick Reference: Data Node typeVersions
+
+| Node | typeVersion |
+|------|-------------|
+| Google Sheets | 4.5 |
+| Airtable | 2.1 |
+| Notion | 2.2 |
+| Postgres | 2.6 |
+| MySQL | 2.5 |
+| Slack | 2.2 |
+| Gmail | 2.1 |
+| Telegram | 1.2 |
+| Discord | 2 |

@@ -6,6 +6,9 @@ Nodes for data transformation, logic, and workflow control.
 - [Set](#set)
 - [If](#if)
 - [Switch](#switch)
+- [Filter](#filter)
+- [Sort](#sort)
+- [Split Out](#split-out)
 - [Merge](#merge)
 - [Code](#code)
 - [HTTP Request](#http-request)
@@ -144,6 +147,192 @@ Nodes for data transformation, logic, and workflow control.
 
 ---
 
+## Filter
+
+**Remove items that don't match conditions:**
+```json
+{
+  "id": "filter-1",
+  "name": "Filter",
+  "type": "n8n-nodes-base.filter",
+  "typeVersion": 2.3,
+  "position": [450, 300],
+  "parameters": {
+    "conditions": {
+      "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+      },
+      "conditions": [
+        {
+          "id": "condition-1",
+          "leftValue": "={{ $json.status }}",
+          "rightValue": "active",
+          "operator": {
+            "type": "string",
+            "operation": "equals"
+          }
+        }
+      ],
+      "combinator": "and"
+    },
+    "looseTypeValidation": false
+  }
+}
+```
+
+**Multiple conditions:**
+```json
+{
+  "parameters": {
+    "conditions": {
+      "options": {
+        "version": 2,
+        "caseSensitive": true,
+        "typeValidation": "strict"
+      },
+      "conditions": [
+        {
+          "leftValue": "={{ $json.price }}",
+          "rightValue": 100,
+          "operator": { "type": "number", "operation": "gt" }
+        },
+        {
+          "leftValue": "={{ $json.inStock }}",
+          "rightValue": true,
+          "operator": { "type": "boolean", "operation": "equals" }
+        }
+      ],
+      "combinator": "and"
+    }
+  }
+}
+```
+
+**Operators:**
+- String: `equals`, `notEquals`, `contains`, `notContains`, `startsWith`, `endsWith`, `regex`
+- Number: `equals`, `notEquals`, `gt`, `gte`, `lt`, `lte`
+- Boolean: `equals`, `notEquals`
+
+---
+
+## Sort
+
+**Sort by field:**
+```json
+{
+  "id": "sort-1",
+  "name": "Sort",
+  "type": "n8n-nodes-base.sort",
+  "typeVersion": 1,
+  "position": [450, 300],
+  "parameters": {
+    "type": "simple",
+    "sortFieldsUi": {
+      "sortField": [
+        {
+          "fieldName": "createdAt",
+          "order": "descending"
+        }
+      ]
+    },
+    "options": {}
+  }
+}
+```
+
+**Sort by multiple fields:**
+```json
+{
+  "parameters": {
+    "type": "simple",
+    "sortFieldsUi": {
+      "sortField": [
+        {
+          "fieldName": "priority",
+          "order": "ascending"
+        },
+        {
+          "fieldName": "createdAt",
+          "order": "descending"
+        }
+      ]
+    }
+  }
+}
+```
+
+**Random shuffle:**
+```json
+{
+  "parameters": {
+    "type": "random"
+  }
+}
+```
+
+**Custom code sort:**
+```json
+{
+  "parameters": {
+    "type": "code",
+    "code": "fieldName = 'score';\n\nif (a.json[fieldName] < b.json[fieldName]) {\n  return -1;\n}\nif (a.json[fieldName] > b.json[fieldName]) {\n  return 1;\n}\nreturn 0;"
+  }
+}
+```
+
+**Sort types:** `simple`, `random`, `code`
+
+---
+
+## Split Out
+
+**Turn a list inside items into separate items:**
+```json
+{
+  "id": "split-out-1",
+  "name": "Split Out",
+  "type": "n8n-nodes-base.splitOut",
+  "typeVersion": 1,
+  "position": [450, 300],
+  "parameters": {
+    "fieldToSplitOut": "items",
+    "include": "noOtherFields",
+    "options": {}
+  }
+}
+```
+
+**Include other fields:**
+```json
+{
+  "parameters": {
+    "fieldToSplitOut": "products",
+    "include": "allOtherFields"
+  }
+}
+```
+
+**Include specific fields:**
+```json
+{
+  "parameters": {
+    "fieldToSplitOut": "tags",
+    "include": "selectedOtherFields",
+    "fieldsToInclude": "id, name, category"
+  }
+}
+```
+
+**Include options:**
+- `noOtherFields` - Only the split out field
+- `allOtherFields` - Include all other fields
+- `selectedOtherFields` - Include specific fields
+
+---
+
 ## Merge
 
 **Combine by position:**
@@ -214,7 +403,7 @@ Nodes for data transformation, logic, and workflow control.
   "id": "http-1",
   "name": "HTTP Request",
   "type": "n8n-nodes-base.httpRequest",
-  "typeVersion": 4.2,
+  "typeVersion": 4.4,
   "position": [450, 300],
   "parameters": {
     "method": "POST",
@@ -243,6 +432,39 @@ Nodes for data transformation, logic, and workflow control.
   }
 }
 ```
+
+**GET request:**
+```json
+{
+  "parameters": {
+    "method": "GET",
+    "url": "https://api.example.com/data",
+    "authentication": "none",
+    "sendQuery": true,
+    "queryParameters": {
+      "parameters": [
+        { "name": "limit", "value": "10" },
+        { "name": "offset", "value": "={{ $json.offset }}" }
+      ]
+    },
+    "options": {}
+  }
+}
+```
+
+**Methods:** `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`
+
+**Body types:**
+- `json` - JSON body
+- `form-urlencoded` - Form URL encoded
+- `multipart-form-data` - Form data (file uploads)
+- `raw` - Raw content
+- `binaryData` - Binary file
+
+**Authentication types:**
+- `none` - No authentication
+- `predefinedCredentialType` - Use predefined credentials (OAuth, API keys)
+- `genericCredentialType` - Generic header/query/basic auth
 
 ---
 
@@ -345,3 +567,53 @@ Nodes for data transformation, logic, and workflow control.
   }
 }
 ```
+
+### Switch Node (Multiple Branches)
+
+```json
+{
+  "connections": {
+    "Switch": {
+      "main": [
+        [{ "node": "High Priority", "type": "main", "index": 0 }],
+        [{ "node": "Medium Priority", "type": "main", "index": 0 }],
+        [{ "node": "Low Priority", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}
+```
+
+### Merge (Multiple Inputs)
+
+```json
+{
+  "connections": {
+    "Branch A": {
+      "main": [[{ "node": "Merge", "type": "main", "index": 0 }]]
+    },
+    "Branch B": {
+      "main": [[{ "node": "Merge", "type": "main", "index": 1 }]]
+    }
+  }
+}
+```
+
+---
+
+## Quick Reference: Transform Node typeVersions
+
+| Node | typeVersion |
+|------|-------------|
+| Set | 3.4 |
+| If | 2.2 |
+| Switch | 3.2 |
+| Filter | 2.3 |
+| Sort | 1 |
+| Split Out | 1 |
+| Merge | 3 |
+| Code | 2 |
+| HTTP Request | 4.4 |
+| Wait | 1.1 |
+| Split In Batches | 3 |
+| Respond to Webhook | 1.1 |

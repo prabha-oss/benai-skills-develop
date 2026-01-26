@@ -1,6 +1,6 @@
 ---
 name: n8n-nodes
-description: Reference configurations for 20+ common n8n nodes. ALWAYS use when building workflows to get correct node JSON structure, typeVersion, and parameter examples. Use for Webhook, Schedule, AI Agent, OpenAI, Google Sheets, Airtable, Slack, Gmail, Notion, HTTP Request, Set, If, Switch, Merge, Code nodes and connection patterns.
+description: Reference configurations for 40+ common n8n nodes. ALWAYS use when building workflows to get correct node JSON structure, typeVersion, and parameter examples. Use for Webhook, Schedule, Form, Chat triggers, AI Agent, OpenAI, Anthropic, Google Sheets, Airtable, Postgres, MySQL, Slack, Gmail, Telegram, Discord, Notion, HTTP Request, Set, If, Switch, Filter, Sort, Merge, Code nodes and connection patterns.
 ---
 
 # n8n Nodes Reference
@@ -25,17 +25,57 @@ Working configurations for the most commonly used n8n nodes. Copy these as your 
 
 Always use the correct typeVersion:
 
-| Node | typeVersion | Node | typeVersion |
-|------|-------------|------|-------------|
-| Webhook | 2 | HTTP Request | 4.2 |
-| Schedule Trigger | 1.2 | Set | 3.4 |
-| AI Agent | 1.7 | If | 2.2 |
-| OpenAI Chat Model | 1.2 | Switch | 3.2 |
-| Google Sheets | 4.5 | Merge | 3 |
-| Airtable | 2.1 | Code | 2 |
-| Slack | 2.2 | Wait | 1.1 |
-| Gmail | 2.1 | Split In Batches | 3 |
-| Notion | 2.2 | Respond to Webhook | 1.1 |
+### Triggers
+| Node | typeVersion |
+|------|-------------|
+| Webhook | 2 |
+| Schedule Trigger | 1.2 |
+| Form Trigger | 2.2 |
+| Chat Trigger | 1.1 |
+| Airtable Trigger | 1 |
+| Gmail Trigger | 1.2 |
+| Slack Trigger | 1 |
+| Telegram Trigger | 1.1 |
+| Google Sheets Trigger | 1 |
+
+### AI / LangChain
+| Node | typeVersion |
+|------|-------------|
+| AI Agent | 3.1 |
+| OpenAI Chat Model | 1.2 |
+| Anthropic Chat Model | 1.3 |
+| OpenAI Embeddings | 1.1 |
+| Simple Memory | 1.3 |
+| Simple Vector Store | 1.3 |
+
+### Data & Communication
+| Node | typeVersion |
+|------|-------------|
+| Google Sheets | 4.5 |
+| Airtable | 2.1 |
+| Notion | 2.2 |
+| Postgres | 2.6 |
+| MySQL | 2.5 |
+| Slack | 2.2 |
+| Gmail | 2.1 |
+| Telegram | 1.2 |
+| Discord | 2 |
+
+### Transform & Utility
+| Node | typeVersion |
+|------|-------------|
+| Set | 3.4 |
+| If | 2.2 |
+| Switch | 3.2 |
+| Filter | 2.3 |
+| Sort | 1 |
+| Split Out | 1 |
+| Merge | 3 |
+| Code | 2 |
+| HTTP Request | 4.4 |
+| Wait | 1.1 |
+| Split In Batches | 3 |
+| Respond to Webhook | 1.1 |
 
 ---
 
@@ -53,10 +93,10 @@ See [data-nodes.md](data-nodes.md) for create configurations.
 
 | File | Contents |
 |------|----------|
-| [triggers.md](triggers.md) | Webhook, Schedule, Airtable, Gmail, Slack triggers |
-| [ai-nodes.md](ai-nodes.md) | AI Agent, OpenAI Chat Model, Embeddings + connection patterns |
-| [data-nodes.md](data-nodes.md) | Google Sheets, Airtable, Notion, Slack, Gmail (with create operations) |
-| [transform-nodes.md](transform-nodes.md) | Set, If, Switch, Merge, Code, HTTP Request, Wait, Respond to Webhook |
+| [triggers.md](triggers.md) | Webhook, Schedule, Form, Chat, Airtable, Gmail, Slack, Telegram, WhatsApp, HubSpot, Stripe, Shopify, Postgres, Google Sheets triggers |
+| [ai-nodes.md](ai-nodes.md) | AI Agent, OpenAI/Anthropic Chat Models, Embeddings, Memory, Vector Store + connection patterns |
+| [data-nodes.md](data-nodes.md) | Google Sheets, Airtable, Notion, Postgres, MySQL, Slack, Gmail, Telegram, Discord |
+| [transform-nodes.md](transform-nodes.md) | Set, If, Switch, Filter, Sort, Split Out, Merge, Code, HTTP Request, Wait, Respond to Webhook |
 
 ---
 

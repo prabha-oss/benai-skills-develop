@@ -47,7 +47,29 @@ BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → CREATE TODO L
 
 ## Critical Rules (Memorize These)
 
-### 1. Node Discovery Flow
+### 1. USE THE TOOLS THE USER SPECIFIES (CRITICAL - NEVER IGNORE)
+
+**If the user mentions specific tools, nodes, or services - YOU MUST USE THEM. No exceptions.**
+
+```
+❌ WRONG: User says "use Apify" → You use HTTP Request to scrape
+❌ WRONG: User says "use FullEnrich" → You skip it and use a different enrichment
+❌ WRONG: User says "use OpenAI" → You use Anthropic instead
+
+✅ RIGHT: User says "use Apify" → You use Apify node
+✅ RIGHT: User says "use FullEnrich" → You add FullEnrich to the workflow
+✅ RIGHT: User says "use OpenAI" → You use OpenAI Chat Model
+```
+
+**Rules:**
+- If user mentions a tool → IT MUST BE IN THE WORKFLOW
+- If user doesn't specify → Use your best judgment
+- If unsure about a tool → ASK the user, don't skip it
+- NEVER substitute a different tool for what the user requested
+
+**This is the #1 rule. Ignoring user's tool requirements breaks trust.**
+
+### 2. Node Discovery Flow
 
 **When you need to add a node, follow this sequence:**
 
@@ -67,7 +89,7 @@ BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → CREATE TODO L
 4. Then use create/update with exact field names from schema
 ```
 
-### 2. Fetch Database Schema First
+### 3. Fetch Database Schema First
 
 **When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
 
@@ -87,7 +109,7 @@ USER PROVIDES DATABASE → FETCH SCHEMA → USE EXACT FIELD NAMES
 | Notion | `getDatabase` to see properties |
 | Postgres/MySQL | `executeQuery` with `DESCRIBE table` |
 
-### 3. One Node at a Time
+### 4. One Node at a Time
 
 ```
 ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
@@ -95,7 +117,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 4. Use Native Nodes First
+### 5. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -106,11 +128,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
-### 5. No Mock Data
+### 6. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 6. Test with 2 Items
+### 7. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 

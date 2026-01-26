@@ -84,7 +84,32 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 
 **This is the #1 rule. Ignoring user's tool requirements breaks trust.**
 
-### 2. Node Discovery Flow
+### 2. Only Use Nodes From Credentials Template (Unless User Requests)
+
+**NEVER add nodes that require authentication unless:**
+1. The node exists in the user's credentials template, OR
+2. The user explicitly asks to use that specific tool/service
+
+```
+❌ WRONG: Add Apify node without checking if it's in credentials template
+❌ WRONG: Add FullEnrich node because you think it would be useful
+❌ WRONG: Add any 3rd party auth node without user explicitly requesting it
+
+✅ RIGHT: Check credentials template first → Only use nodes that are configured
+✅ RIGHT: User says "use Apify" → Check template → If missing, ask user to add it
+✅ RIGHT: Need a tool not in template? → Ask user if they want to add it
+```
+
+**Before using ANY node that requires authentication:**
+1. Load `n8n-credentials` skill
+2. Fetch the credentials template
+3. Check if the node type exists in the template
+4. If NOT in template AND user didn't request it → DON'T USE IT
+5. If NOT in template AND user requested it → Ask user to add it to template first
+
+**Why:** Nodes without configured credentials will fail. Don't waste time building workflows with unconfigured nodes.
+
+### 3. Node Discovery Flow
 
 **When you need to add a node, follow this sequence:**
 
@@ -104,7 +129,7 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 4. Then use create/update with exact field names from schema
 ```
 
-### 3. Fetch Database Schema First
+### 4. Fetch Database Schema First
 
 **When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
 
@@ -124,7 +149,7 @@ USER PROVIDES DATABASE → FETCH SCHEMA → USE EXACT FIELD NAMES
 | Notion | `getDatabase` to see properties |
 | Postgres/MySQL | `executeQuery` with `DESCRIBE table` |
 
-### 4. One Node at a Time
+### 5. One Node at a Time
 
 ```
 ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
@@ -132,7 +157,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 5. Use Native Nodes First
+### 6. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -143,11 +168,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
-### 6. No Mock Data
+### 7. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 7. Test with 2 Items
+### 8. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 

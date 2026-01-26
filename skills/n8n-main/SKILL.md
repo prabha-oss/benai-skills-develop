@@ -9,17 +9,32 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 
 ---
 
-## Before Starting (MANDATORY)
+## IMMEDIATELY When Skill Loads (DO THIS NOW)
 
-**You MUST complete these steps before building any workflow:**
+**As soon as this skill loads, DO THESE STEPS AUTOMATICALLY - don't wait for user input:**
 
-### Step 1: Read Reference Files
-1. **Read `pitfalls.md`** - Command format rules, common mistakes (CRITICAL)
-2. **Read `build-process.md`** - Step-by-step build and test process
+### Step 1: Read Reference Files NOW
+```
+Use the Read tool IMMEDIATELY to read these files:
+1. Read pitfalls.md (in this skill's directory)
+2. Read build-process.md (in this skill's directory)
+```
 
-### Step 2: Create a Todo List
+**DO NOT ask the user what they want to build. READ THE FILES FIRST.**
 
-**ALWAYS create a todo list using TaskCreate before building.** Break down the workflow into individual tasks:
+### Step 2: Check .env Configuration
+```
+Read the .env file in the working directory to verify:
+- N8N_API_URL is set
+- N8N_API_KEY is set
+- N8N_CREDENTIALS_TEMPLATE_URL is set
+```
+
+If any values are missing, ask the user for ALL of them in a single prompt.
+
+### Step 3: Create a Todo List
+
+**After understanding the user's request, create a todo list using TaskCreate.** Break down the workflow into individual tasks:
 
 ```
 Example todo list for "Scrape leads and save to Airtable":
@@ -38,10 +53,10 @@ Example todo list for "Scrape leads and save to Airtable":
 - If blocked, create new task for the blocker
 
 ```
-BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → CREATE TODO LIST → FOLLOW IT
+SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 ```
 
-**Do NOT proceed until you have read the files AND created a todo list.**
+**The user should NOT have to ask you to read the files. Do it automatically.**
 
 ---
 

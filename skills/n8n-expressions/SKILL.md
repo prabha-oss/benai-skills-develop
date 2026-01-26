@@ -148,7 +148,7 @@ User-submitted data from webhooks lives under `.body`:
 ```javascript
 // Concatenation
 {{ $json.firstName + ' ' + $json.lastName }}
-{{ `Hello, ${$json.name}!` }}
+{{ 'Hello, ' + $json.name + '!' }}
 
 // Case conversion
 {{ $json.name.toUpperCase() }}

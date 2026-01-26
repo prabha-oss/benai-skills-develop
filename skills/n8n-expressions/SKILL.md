@@ -1,6 +1,6 @@
 ---
 name: n8n-expressions
-description: Write and debug n8n expressions. Use when working with {{ }} syntax, accessing $json data, referencing other nodes, handling webhook payloads, or troubleshooting expression errors.
+description: Write and debug n8n expressions. Use when working with {{ }} syntax, accessing $json data, $json.body for webhook payloads, referencing other nodes with $node or $(), using $now for dates, $env for environment variables. Use for expression errors, undefined values, and dynamic field access.
 ---
 
 # n8n Expressions Skill

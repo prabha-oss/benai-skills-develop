@@ -1,6 +1,6 @@
 ---
 name: n8n-credentials
-description: Get full node configurations (credentials + parameters) from template workflow. Use when creating new workflows to copy working node setups.
+description: Get full node configurations (credentials + parameters) from template workflow. Use when adding nodes that need authentication like Google Sheets, Airtable, Slack, Gmail, OpenAI, Notion. Copy credentials, parameters, and typeVersion from working template nodes.
 ---
 
 # n8n-credentials Skill

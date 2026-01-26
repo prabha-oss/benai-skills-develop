@@ -51,6 +51,23 @@ The skills will automatically create this file if missing and prompt for values.
 - API endpoint not supported by native node
 - Custom API not covered by any node
 
+### Fetch Database Schema First
+
+**When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
+
+1. Create a temp workflow with trigger + schema fetch node
+2. Execute to get actual field names
+3. Use those exact field names in the main workflow
+4. Work with existing fields - don't ask user to create new ones
+
+**Why:** Field names must match exactly (case-sensitive, space-sensitive). Guessing field names causes errors.
+
+| Database | Schema Operation |
+|----------|------------------|
+| Airtable | `getSchema` on base resource |
+| Google Sheets | `getAll` first row or check headers |
+| Notion | `getDatabase` to see properties |
+
 ### Never Mock Data
 
 **CRITICAL: Never use placeholder, fake, or mock data when building workflows.**

@@ -15,11 +15,9 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 
 1. **Read `pitfalls.md`** - Command format rules, common mistakes (CRITICAL)
 2. **Read `build-process.md`** - Step-by-step build and test process
-3. **Load `n8n-nodes` skill** - Get correct node configurations
-4. **Load `n8n-credentials` skill** - Get credentials from template
 
 ```
-BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → LOAD n8n-nodes skill
+BEFORE ANY WORK → READ pitfalls.md → READ build-process.md
 ```
 
 **Do NOT proceed until you have read these files.**
@@ -28,20 +26,36 @@ BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → LOAD n8n-node
 
 ## Critical Rules (Memorize These)
 
-### 1. ALWAYS Load n8n-nodes Skill First
+### 1. Fetch Database Schema First
 
-**MANDATORY**: Before adding ANY node to a workflow:
-1. Load the `n8n-nodes` skill to get correct node configuration
-2. Use the exact `typeVersion`, `parameters`, and structure from the reference
-3. If a node fails, reload `n8n-nodes` skill and check the configuration
+**When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
+
+1. Create a temp workflow with a trigger + schema fetch node
+2. Execute it to get the actual field names
+3. Use those exact field names when building the main workflow
+4. Delete the temp workflow or reuse it
 
 ```
-BEFORE ADDING NODE → LOAD n8n-nodes SKILL → GET CONFIG → ADD NODE
+USER PROVIDES DATABASE → FETCH SCHEMA FIRST → USE EXACT FIELD NAMES
 ```
 
-**On Error**: If any node throws an error, ALWAYS check `n8n-nodes` skill for correct configuration before retrying.
+**Why:** Field names must match exactly (case-sensitive, space-sensitive). Never guess or ask user to create fields - work with what exists.
 
-### 2. One Node at a Time
+### 2. Load Node Config Just-In-Time
+
+**Only load `n8n-nodes` skill when you're about to add THAT specific node:**
+
+1. About to add Webhook? → Load n8n-nodes, read triggers.md
+2. About to add Airtable? → Load n8n-nodes, read data-nodes.md
+3. About to add AI Agent? → Load n8n-nodes, read ai-nodes.md
+
+```
+ABOUT TO ADD NODE → LOAD n8n-nodes SKILL → READ relevant .md file → ADD NODE
+```
+
+**On Error**: If any node throws an error, check n8n-nodes skill for correct configuration.
+
+### 3. One Node at a Time
 
 ```
 ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
@@ -49,7 +63,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 3. Use Native Nodes First
+### 4. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -57,11 +71,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 | 2. HTTP Request | Native has issues OR no node exists |
 | 3. Code node | Complex logic only |
 
-### 4. No Mock Data
+### 5. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 5. Test with 2 Items
+### 6. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 
@@ -69,26 +83,33 @@ Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 
 ## Build Process (Follow Exactly)
 
-### Step 1: Load n8n-nodes Skill
-Before starting, load the `n8n-nodes` skill to have all node configurations available.
+### Step 0: Fetch Schema (If Database Involved)
 
-### Step 2: Create Workflow with Trigger
+If workflow writes to Airtable, Google Sheets, Notion, etc.:
 ```
-1. Get trigger config from n8n-nodes skill
+1. Create temp workflow: Webhook + getSchema/getAll node
+2. Execute to fetch actual field names
+3. Store field names for use in main workflow
+4. Delete temp workflow (or reuse as main workflow)
+```
+
+### Step 1: Create Workflow with Trigger
+```
+1. Load n8n-nodes skill → read triggers.md
 2. Create workflow with trigger only
 3. Test trigger
 ```
 
-### Step 3: Add Each Node (Repeat for Every Node)
+### Step 2: Add Each Node (Repeat for Every Node)
 ```
-1. Load n8n-nodes skill → get node config
+1. Load n8n-nodes skill → read relevant .md file for this node type
 2. Add ONE node to workflow
 3. Test workflow
 4. If ERROR → check n8n-nodes skill → fix → retry
 5. If SUCCESS → move to next node
 ```
 
-### Step 4: Final Verification
+### Step 3: Final Verification
 ```
 1. All nodes added and tested
 2. Workflow activated
@@ -219,20 +240,26 @@ EOF
 
 | Skill | When to Use |
 |-------|-------------|
-| **n8n-nodes** | **ALWAYS** load before adding any node. Contains correct typeVersions, parameters, and structures for 40+ nodes |
-| **n8n-credentials** | Get full node configs from template (credentials + parameters) |
+| **n8n-nodes** | Load just-in-time when adding a specific node type. Read the relevant .md file (triggers.md, data-nodes.md, ai-nodes.md, transform-nodes.md) |
+| **n8n-credentials** | Get credential configs from template workflow |
 | **n8n-expressions** | Expression syntax for dynamic values (`{{ $json.field }}`) |
 
 ---
 
-## Nodes Requiring Manual UI Config
+## Working with Existing Databases
 
-| Node | Reason | Solution |
-|------|--------|----------|
-| Google Sheets | OAuth document picker | Ask for spreadsheet ID/URL or manual UI |
-| Google Drive | OAuth file picker | Ask for file/folder ID or manual UI |
-| Notion | Database picker | Ask for database ID or manual UI |
-| Airtable | Base/Table picker | Ask for base and table IDs |
+When user provides a database ID (Airtable base, Google Sheet, Notion DB):
+
+1. **Fetch schema first** - Get actual field names via API
+2. **Use exact field names** - Case and space sensitive
+3. **Work with what exists** - Don't ask user to create fields
+
+| Database | How to Get Schema |
+|----------|-------------------|
+| Airtable | `getSchema` operation on base |
+| Google Sheets | `getAll` first row or create and check headers |
+| Notion | `getDatabase` to see properties |
+| Postgres/MySQL | `executeQuery` with `DESCRIBE table` or `information_schema` |
 
 ---
 

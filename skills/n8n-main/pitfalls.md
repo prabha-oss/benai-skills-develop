@@ -70,6 +70,22 @@ source .env && curl ...
 export $(cat .env | grep -v '^#' | xargs) && curl ...
 ```
 
+### NEVER Use != in jq Filters
+
+❌ **Wrong**: Using `!= null` in jq (shell interprets `!` as history expansion)
+```bash
+# WRONG - causes "unexpected INVALID_CHARACTER" error
+jq '.nodes[] | select(.credentials != null)'
+```
+
+✅ **Right**: Use truthiness check instead
+```bash
+# RIGHT - same result, no shell issues
+jq '.nodes[] | select(.credentials)'
+```
+
+**Why**: Bash interprets `!` for history expansion even inside quotes, turning `!=` into `\!=` which jq can't parse.
+
 ---
 
 ## Critical Mistakes

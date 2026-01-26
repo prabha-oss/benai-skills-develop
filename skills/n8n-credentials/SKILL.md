@@ -156,7 +156,7 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/work
 
 **Fetch all nodes with credentials:**
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.credentials != null)'
+export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.nodes[] | select(.credentials)'
 ```
 
 ### 2. List Available Node Configurations
@@ -444,7 +444,7 @@ This skill handles:
 
 Get all configured nodes:
 ```bash
-jq '.nodes[] | select(.credentials != null)'
+jq '.nodes[] | select(.credentials)'
 ```
 
 Get specific node type:

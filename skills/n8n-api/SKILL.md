@@ -165,15 +165,35 @@ If `.env` missing, create it automatically. If values empty, ask user.
 
 ---
 
-## API Call Format
+## API Call Format (MUST Follow Exactly)
 
+**CRITICAL RULES:**
+1. **NEVER write JSON files to disk** - Always use API directly
+2. **NEVER use `\` line continuations** - Causes "blank argument" errors
+3. **NEVER use `source .env`** - Use `export $(cat .env | grep -v '^#' | xargs)` instead
+4. **Always single-line commands** - Or heredoc for large JSON
+
+**GET:**
 ```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
 
-For POST/PUT:
+**POST/PUT (small JSON):**
 ```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d 'JSON_DATA'
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/ENDPOINT" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"key": "value"}'
+```
+
+**POST/PUT (large JSON - use heredoc):**
+```bash
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d "$(cat <<'EOF'
+{
+  "name": "My Workflow",
+  "nodes": [...],
+  "connections": {},
+  "settings": {"executionOrder": "v1"}
+}
+EOF
+)"
 ```
 
 ---
@@ -212,7 +232,7 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 |------|----------|
 | [api-reference.md](api-reference.md) | All API commands (CRUD, executions, tags, variables, source control) |
 | [build-process.md](build-process.md) | Step-by-step build-test workflow, pinning data, verification |
-| [pitfalls.md](pitfalls.md) | Common mistakes, error handling, debugging |
+| [pitfalls.md](pitfalls.md) | **CRITICAL**: Command format rules, common mistakes, debugging |
 
 ---
 

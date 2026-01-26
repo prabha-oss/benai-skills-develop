@@ -3,11 +3,72 @@
 Mistakes to avoid and how to debug errors.
 
 ## Contents
+- [Command Format Mistakes](#command-format-mistakes)
 - [Critical Mistakes](#critical-mistakes)
 - [API Mistakes](#api-mistakes)
 - [Build Process Mistakes](#build-process-mistakes)
 - [Error Handling](#error-handling)
 - [Debugging](#debugging)
+
+---
+
+## Command Format Mistakes
+
+### NEVER Write JSON Files to Disk
+
+❌ **Wrong**: Writing workflow JSON to a file, then using `-d @file.json`
+```bash
+# WRONG - Don't do this!
+Write(workflow.json)
+curl -X POST ... -d @workflow.json
+```
+
+✅ **Right**: Use the API directly with inline JSON or heredoc
+```bash
+# RIGHT - Direct API call with inline JSON
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"name": "My Workflow", "nodes": [...], "connections": {}}'
+```
+
+### NEVER Use Line Continuations in Curl
+
+❌ **Wrong**: Using `\` to break lines (causes "blank argument" errors)
+```bash
+# WRONG - Line continuations break in Claude Code
+curl -s -X POST "${URL}" \
+  -H "Header: value" \
+  -d '{...}'
+```
+
+✅ **Right**: Single line commands OR heredoc for large JSON
+```bash
+# RIGHT - Single line
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d '{"name": "Test"}'
+
+# RIGHT - Heredoc for large JSON (note: no line breaks in the curl part)
+export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows" -H "X-N8N-API-KEY: ${N8N_API_KEY}" -H "Content-Type: application/json" -d "$(cat <<'EOF'
+{
+  "name": "My Workflow",
+  "nodes": [{"id": "1", "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [0,0], "parameters": {"path": "test"}}],
+  "connections": {},
+  "settings": {"executionOrder": "v1"}
+}
+EOF
+)"
+```
+
+### NEVER Use source .env
+
+❌ **Wrong**: Using `source .env` (unreliable with special characters)
+```bash
+# WRONG
+source .env && curl ...
+```
+
+✅ **Right**: Use export with grep
+```bash
+# RIGHT - Always use this format
+export $(cat .env | grep -v '^#' | xargs) && curl ...
+```
 
 ---
 

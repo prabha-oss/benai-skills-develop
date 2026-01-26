@@ -9,6 +9,23 @@ Write effective JavaScript and Python code for n8n Code nodes.
 
 ---
 
+## PREREQUISITE: Load n8n-main First
+
+**STOP! Before using this skill, the `n8n-main` skill MUST be loaded first.**
+
+If `n8n-main` has NOT been loaded yet in this conversation:
+1. **Load `n8n-main` skill NOW** using the Skill tool
+2. Wait for it to complete its setup (reading files, checking .env)
+3. Then return to this skill
+
+```
+n8n-main NOT loaded? → LOAD IT FIRST → Then use this skill
+```
+
+**Why:** n8n-main reads critical reference files (pitfalls.md, build-process.md) and verifies .env configuration. Without it, you'll make avoidable mistakes.
+
+---
+
 ## Before Writing Code (MANDATORY)
 
 **You MUST read the appropriate reference file using the Read tool:**

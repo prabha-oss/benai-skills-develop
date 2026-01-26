@@ -10,7 +10,7 @@ This plugin provides expert-level n8n workflow automation capabilities through a
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| n8n-api | `/benai-skills:n8n-api` | All workflow CRUD operations via REST API |
+| n8n-main | `/benai-skills:n8n-main` | All workflow CRUD operations via REST API |
 | n8n-credentials | `/benai-skills:n8n-credentials` | Extract node configs from template workflows |
 | n8n-expressions | `/benai-skills:n8n-expressions` | Expression syntax, patterns, and debugging |
 | n8n-development | `/benai-skills:n8n-development` | Code nodes, workflow patterns, node configuration |

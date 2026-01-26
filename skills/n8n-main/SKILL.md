@@ -1,5 +1,5 @@
 ---
-name: n8n-api
+name: n8n-main
 description: Build and manage n8n workflows via REST API. Use when user says "create workflow", "build automation", "deploy to n8n", "activate workflow", "make a workflow", "set up n8n", "connect to n8n", or needs to list/update/delete/test workflows. Also use for webhook execution, checking executions, and debugging workflow runs.
 ---
 

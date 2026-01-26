@@ -281,7 +281,7 @@ When building a workflow, use the template node as your BASE:
    }
    ```
 
-6. **Create workflow** using benai-skills:n8n-api skill
+6. **Create workflow** using benai-skills:n8n-main skill
 
 ---
 
@@ -373,7 +373,7 @@ then try again.
 
 **To create/update workflows with credentials**:
 1. Use THIS skill to get full node configurations from template
-2. Use `benai-skills:n8n-api` skill to create the workflow
+2. Use `benai-skills:n8n-main` skill to create the workflow
 3. **Test the workflow and debug until it works**
 4. Only report success to user after confirmed working
 

@@ -111,23 +111,23 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/exec
 
 ## Testing Requirements
 
-### Test with 10 Real Data Items
+### Test with 2 Real Data Items
 
 ```
-❌ WRONG: Limit search to 1 item
+❌ WRONG: Limit search to 1 item (not enough to verify loops)
 ❌ WRONG: Use mock/placeholder data
 ❌ WRONG: Test with empty payload
 
-✅ RIGHT: Set limit=10 or maxResults=10
+✅ RIGHT: Set limit=2 or maxResults=2 (fast but verifies multiple items)
 ✅ RIGHT: Use real API endpoints
-✅ RIGHT: Verify all 10 items flow through
+✅ RIGHT: Verify all 2 items flow through
 ```
 
 When configuring data-fetching nodes:
-- Apify/scraper nodes: `maxResults: 10`
-- HTTP Request to APIs: `?limit=10`
-- Database queries: `LIMIT 10`
-- Search nodes: Set limit to 10
+- Apify/scraper nodes: `maxResults: 2`
+- HTTP Request to APIs: `?limit=2`
+- Database queries: `LIMIT 2`
+- Search nodes: Set limit to 2
 
 ### One Workflow, Keep Updating
 
@@ -151,7 +151,7 @@ After a node successfully fetches external data, PIN the data immediately.
 ### Correct Workflow with Pinning
 
 ```
-1. Add scraper node → Execute → SUCCESS (got 10 items)
+1. Add scraper node → Execute → SUCCESS (got 2 items)
 2. PIN the scraper node's output data
 3. Add transform node → Execute (uses pinned data - instant!)
 4. PIN the transform node's output

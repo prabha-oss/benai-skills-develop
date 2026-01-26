@@ -83,9 +83,9 @@ curl -X PUT "${N8N_API_URL}/api/v1/workflows/{id}" \
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 6. Test with 10 Items
+### 6. Test with 2 Items
 
-Always set `limit=10` or `maxResults=10` on data-fetching nodes.
+Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 
 ---
 
@@ -282,7 +282,7 @@ EOF
 
 Build Progress:
 1. ✓ Webhook trigger - working (pinned)
-2. ✓ HTTP Request - working (pinned, 10 results)
+2. ✓ HTTP Request - working (pinned, 2 results)
 3. ✓ Google Sheets - working (pinned)
 
 - Workflow: My Workflow

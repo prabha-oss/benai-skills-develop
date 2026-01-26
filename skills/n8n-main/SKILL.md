@@ -26,34 +26,45 @@ BEFORE ANY WORK → READ pitfalls.md → READ build-process.md
 
 ## Critical Rules (Memorize These)
 
-### 1. Fetch Database Schema First
+### 1. Node Discovery Flow
+
+**When you need to add a node, follow this sequence:**
+
+```
+1. LOAD n8n-nodes skill
+2. CHECK if node is documented (triggers.md, data-nodes.md, ai-nodes.md, transform-nodes.md)
+3. LIST available operations for that node
+4. If DATABASE node → FETCH SCHEMA first to get field names
+5. USE the appropriate operation with correct config
+```
+
+**Example - Adding Airtable node:**
+```
+1. Load n8n-nodes skill → Read data-nodes.md
+2. Find Airtable section → See operations: create, delete, get, search, update, upsert, getSchema
+3. Need to write data? → First use getSchema to get field names
+4. Then use create/update with exact field names from schema
+```
+
+### 2. Fetch Database Schema First
 
 **When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
 
-1. Create a temp workflow with a trigger + schema fetch node
-2. Execute it to get the actual field names
-3. Use those exact field names when building the main workflow
-4. Delete the temp workflow or reuse it
+1. Add a schema fetch node to get actual field names
+2. Execute to see exact field names (case-sensitive, space-sensitive)
+3. Use those exact field names when writing data
+4. Work with existing fields - don't ask user to create new ones
 
 ```
-USER PROVIDES DATABASE → FETCH SCHEMA FIRST → USE EXACT FIELD NAMES
+USER PROVIDES DATABASE → FETCH SCHEMA → USE EXACT FIELD NAMES
 ```
 
-**Why:** Field names must match exactly (case-sensitive, space-sensitive). Never guess or ask user to create fields - work with what exists.
-
-### 2. Load Node Config Just-In-Time
-
-**Only load `n8n-nodes` skill when you're about to add THAT specific node:**
-
-1. About to add Webhook? → Load n8n-nodes, read triggers.md
-2. About to add Airtable? → Load n8n-nodes, read data-nodes.md
-3. About to add AI Agent? → Load n8n-nodes, read ai-nodes.md
-
-```
-ABOUT TO ADD NODE → LOAD n8n-nodes SKILL → READ relevant .md file → ADD NODE
-```
-
-**On Error**: If any node throws an error, check n8n-nodes skill for correct configuration.
+| Database | Schema Operation |
+|----------|------------------|
+| Airtable | `getSchema` on base resource |
+| Google Sheets | `getAll` first row to see headers |
+| Notion | `getDatabase` to see properties |
+| Postgres/MySQL | `executeQuery` with `DESCRIBE table` |
 
 ### 3. One Node at a Time
 

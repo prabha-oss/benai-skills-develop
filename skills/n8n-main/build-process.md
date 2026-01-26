@@ -6,7 +6,6 @@ Step-by-step workflow for building n8n workflows incrementally.
 - [The Golden Rule](#the-golden-rule)
 - [Step-by-Step Process](#step-by-step-process)
 - [Testing Requirements](#testing-requirements)
-- [Pinning Data](#pinning-data)
 - [Example Build](#example-build)
 
 ---
@@ -137,68 +136,6 @@ When configuring data-fetching nodes:
 
 ---
 
-## Pinning Data
-
-After a node successfully fetches external data, PIN the data immediately.
-
-### Why Pin?
-
-- **Speed**: No waiting for slow API calls on every test
-- **Cost**: Avoid repeated API charges (Apify, OpenAI, etc.)
-- **Consistency**: Same test data every run
-- **Reliability**: External APIs can fail/change
-
-### Correct Workflow with Pinning
-
-```
-1. Add scraper node → Execute → SUCCESS (got 2 items)
-2. PIN the scraper node's output data
-3. Add transform node → Execute (uses pinned data - instant!)
-4. PIN the transform node's output
-5. Add storage node → Execute (uses pinned data - instant!)
-6. Continue building...
-```
-
-### How to Pin via API
-
-Get execution data:
-```bash
-export $(cat .env | grep -v '^#' | xargs) && curl -s "${N8N_API_URL}/api/v1/executions/{EXECUTION_ID}?includeData=true" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq '.data.resultData.runData["Node Name"]'
-```
-
-Update workflow with pinned data:
-```json
-{
-  "name": "My Workflow",
-  "nodes": [...],
-  "connections": {...},
-  "pinData": {
-    "Scraper Node": [
-      {"json": {"field1": "value1"}},
-      {"json": {"field2": "value2"}}
-    ],
-    "HTTP Request": [
-      {"json": {"response": "data"}}
-    ]
-  }
-}
-```
-
-### When to Pin
-
-✅ Pin these:
-- Scraper/crawler nodes
-- HTTP requests to external APIs
-- AI/LLM nodes
-- Any slow or expensive operation
-
-❌ Don't pin:
-- Trigger nodes (webhooks, schedules)
-- Final output nodes (Respond to Webhook)
-- When you need fresh data
-
----
-
 ## Example Build
 
 ```
@@ -210,10 +147,9 @@ Update workflow with pinned data:
 ✓ Step 5: Add Apify Scraper node (PUT)
 ✓ Step 6: Test → Execute webhook
 ✓ Step 7: Verify → status: success, runData: ["Webhook", "Apify Scraper"]
-✓ PIN: Scraper output data
 
 ✓ Step 5: Add Transform node (PUT)
-✓ Step 6: Test → Execute webhook (uses pinned data - fast!)
+✓ Step 6: Test → Execute webhook
 ✓ Step 7: Verify → status: success, runData: ["Webhook", "Apify Scraper", "Transform"]
 
 ✓ Step 5: Add Google Sheets node (PUT)
@@ -232,5 +168,5 @@ Add Webhook → Add Scraper → Add AI → Add Sheets → Test → Error → ???
 
 **RIGHT:**
 ```
-Add Webhook → Test ✓ → Add Scraper → Test ✓ → Pin → Add AI → Test ✓ → Add Sheets → Test ✓ → Done
+Add Webhook → Test ✓ → Add Scraper → Test ✓ → Add AI → Test ✓ → Add Sheets → Test ✓ → Done
 ```

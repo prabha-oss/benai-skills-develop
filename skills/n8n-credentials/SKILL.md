@@ -74,37 +74,26 @@ This skill requires ALL variables to be set:
 
 ### Step 4: Handle Missing Values
 
-#### If N8N_API_URL or N8N_API_KEY is empty:
-Ask the user:
+#### If ANY required variable is empty (N8N_API_URL, N8N_API_KEY, or N8N_CREDENTIALS_TEMPLATE_URL):
+
+Ask the user for ALL missing values in a SINGLE prompt:
 ```
-Step 1 of 2: n8n API Configuration
+n8n Configuration Required
 
-Please provide:
-1. Your n8n instance URL (e.g., https://your-n8n.app.n8n.cloud)
-2. Your n8n API key
+Please provide your n8n configuration:
 
-You can find your API key in n8n at: Settings -> API -> Create API Key
-```
+1. n8n Instance URL
+   Your n8n server address (e.g., https://your-n8n.app.n8n.cloud)
 
-Update `.env` with the values using the Edit tool.
+2. n8n API Key
+   Found at: Settings -> API -> Create API Key
 
-#### If N8N_CREDENTIALS_TEMPLATE_URL is empty:
-Ask the user:
-```
-Step 2 of 2: Credentials Template Workflow
-
-To manage credentials, you need a template workflow that contains nodes with your configured credentials.
-
-Please provide the full URL of your credentials template workflow.
-
-You can find this by:
-1. Open your credentials template workflow in n8n
-2. Copy the URL from your browser (e.g., https://your-n8n.app.n8n.cloud/workflow/abc123)
-
-What is your credentials template workflow URL?
+3. Credentials Template Workflow URL
+   A workflow containing nodes with your configured credentials
+   (e.g., https://your-n8n.app.n8n.cloud/workflow/abc123)
 ```
 
-Update `.env` with the value.
+Update `.env` with all values using the Edit tool.
 
 ---
 

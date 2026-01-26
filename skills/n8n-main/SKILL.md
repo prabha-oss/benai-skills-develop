@@ -14,7 +14,7 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 **You MUST read these files using the Read tool before building any workflow:**
 
 1. **Read `pitfalls.md`** - Command format rules, common mistakes (CRITICAL)
-2. **Read `build-process.md`** - Step-by-step build and pin process
+2. **Read `build-process.md`** - Step-by-step build and test process
 3. **Load `n8n-nodes` skill** - Get correct node configurations
 4. **Load `n8n-credentials` skill** - Get credentials from template
 
@@ -41,37 +41,15 @@ BEFORE ADDING NODE → LOAD n8n-nodes SKILL → GET CONFIG → ADD NODE
 
 **On Error**: If any node throws an error, ALWAYS check `n8n-nodes` skill for correct configuration before retrying.
 
-### 2. One Node at a Time + PIN After Each
+### 2. One Node at a Time
 
 ```
-ADD NODE → TEST → PIN RESPONSE → ADD NEXT NODE → TEST → PIN → REPEAT
+ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 ```
 
-**NEVER add 2+ nodes without testing and pinning between them.**
+**NEVER add 2+ nodes without testing between them.**
 
-### 3. PIN Everything for Speed
-
-**After EVERY successful node test, PIN the response data immediately:**
-
-```bash
-# After test succeeds, update workflow with pinned data
-curl -X PUT "${N8N_API_URL}/api/v1/workflows/{id}" \
-  -H "X-N8N-API-KEY: ${N8N_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nodes": [...],
-    "pinData": {
-      "Node Name": [{"json": {...execution result...}}]
-    }
-  }'
-```
-
-**Why PIN?**
-- Pinned data is used instead of executing the node again
-- No external API calls on subsequent tests = FAST development
-- Each node only calls external APIs once, then uses pinned data
-
-### 4. Use Native Nodes First
+### 3. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -79,11 +57,11 @@ curl -X PUT "${N8N_API_URL}/api/v1/workflows/{id}" \
 | 2. HTTP Request | Native has issues OR no node exists |
 | 3. Code node | Complex logic only |
 
-### 5. No Mock Data
+### 4. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 6. Test with 2 Items
+### 5. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 
@@ -99,7 +77,6 @@ Before starting, load the `n8n-nodes` skill to have all node configurations avai
 1. Get trigger config from n8n-nodes skill
 2. Create workflow with trigger only
 3. Test trigger
-4. PIN trigger response
 ```
 
 ### Step 3: Add Each Node (Repeat for Every Node)
@@ -108,50 +85,15 @@ Before starting, load the `n8n-nodes` skill to have all node configurations avai
 2. Add ONE node to workflow
 3. Test workflow
 4. If ERROR → check n8n-nodes skill → fix → retry
-5. If SUCCESS → PIN the response immediately
-6. Move to next node
+5. If SUCCESS → move to next node
 ```
 
 ### Step 4: Final Verification
 ```
 1. All nodes added and tested
-2. All responses pinned
-3. Workflow activated
-4. Report success to user
+2. Workflow activated
+3. Report success to user
 ```
-
----
-
-## Pinning Data Format
-
-When updating workflow with pinned data:
-
-```json
-{
-  "name": "Workflow Name",
-  "nodes": [...],
-  "connections": {...},
-  "pinData": {
-    "Webhook": [
-      {
-        "json": {
-          "body": {"message": "test"},
-          "headers": {...}
-        }
-      }
-    ],
-    "HTTP Request": [
-      {"json": {"result": "data1"}},
-      {"json": {"result": "data2"}}
-    ]
-  }
-}
-```
-
-**Rules:**
-- `pinData` keys are node NAMES (not IDs)
-- Value is an array of items (even for single item)
-- Each item has `json` property with the data
 
 ---
 
@@ -178,7 +120,28 @@ N8N_API_KEY=your-api-key
 N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n/workflow/template-id
 ```
 
-If `.env` missing, create it automatically. If values empty, ask user.
+### Handle Missing .env or Empty Values
+
+1. **If `.env` doesn't exist**: Create it automatically with empty values
+2. **If ANY value is empty**: Ask user for ALL configuration in a single prompt:
+
+```
+n8n Configuration Required
+
+Please provide your n8n configuration:
+
+1. n8n Instance URL
+   Your n8n server address (e.g., https://your-n8n.app.n8n.cloud)
+
+2. n8n API Key
+   Found at: Settings -> API -> Create API Key
+
+3. Credentials Template Workflow URL
+   A workflow containing nodes with your configured credentials
+   (e.g., https://your-n8n.app.n8n.cloud/workflow/abc123)
+```
+
+Update `.env` with all values using the Edit tool before proceeding.
 
 ---
 
@@ -236,7 +199,6 @@ EOF
       "main": [[{"node": "Target Node Name", "type": "main", "index": 0}]]
     }
   },
-  "pinData": {},
   "settings": {"executionOrder": "v1"}
 }
 ```
@@ -248,7 +210,7 @@ EOF
 | File | Contents |
 |------|----------|
 | [api-reference.md](api-reference.md) | All API commands (CRUD, executions, tags, variables, source control) |
-| [build-process.md](build-process.md) | Step-by-step build-test workflow, pinning data, verification |
+| [build-process.md](build-process.md) | Step-by-step build-test workflow, verification |
 | [pitfalls.md](pitfalls.md) | **CRITICAL**: Command format rules, common mistakes, debugging |
 
 ---
@@ -281,14 +243,13 @@ EOF
 ✅ Workflow built and tested successfully!
 
 Build Progress:
-1. ✓ Webhook trigger - working (pinned)
-2. ✓ HTTP Request - working (pinned, 2 results)
-3. ✓ Google Sheets - working (pinned)
+1. ✓ Webhook trigger - working
+2. ✓ HTTP Request - working (2 results)
+3. ✓ Google Sheets - working
 
 - Workflow: My Workflow
 - URL: https://n8n.example.com/workflow/abc123
 - Status: Active
-- All data pinned for fast re-testing
 ```
 
 **If manual config needed:**

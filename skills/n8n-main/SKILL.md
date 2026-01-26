@@ -11,16 +11,37 @@ Build, test, and deploy n8n workflows via REST API with incremental testing.
 
 ## Before Starting (MANDATORY)
 
-**You MUST read these files using the Read tool before building any workflow:**
+**You MUST complete these steps before building any workflow:**
 
+### Step 1: Read Reference Files
 1. **Read `pitfalls.md`** - Command format rules, common mistakes (CRITICAL)
 2. **Read `build-process.md`** - Step-by-step build and test process
 
+### Step 2: Create a Todo List
+
+**ALWAYS create a todo list using TaskCreate before building.** Break down the workflow into individual tasks:
+
 ```
-BEFORE ANY WORK → READ pitfalls.md → READ build-process.md
+Example todo list for "Scrape leads and save to Airtable":
+
+1. [ ] Fetch Airtable schema to get field names
+2. [ ] Create workflow with Webhook trigger → Test
+3. [ ] Add Apify scraper node → Test
+4. [ ] Add AI Agent node for lead scoring → Test
+5. [ ] Add Airtable create node → Test
+6. [ ] Final verification and cleanup
 ```
 
-**Do NOT proceed until you have read these files.**
+**Update task status as you work:**
+- Mark task `in_progress` when starting
+- Mark task `completed` when done and tested
+- If blocked, create new task for the blocker
+
+```
+BEFORE ANY WORK → READ pitfalls.md → READ build-process.md → CREATE TODO LIST → FOLLOW IT
+```
+
+**Do NOT proceed until you have read the files AND created a todo list.**
 
 ---
 

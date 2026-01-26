@@ -99,6 +99,19 @@ The skills will automatically create this file if missing and prompt for values.
 - Testing after each node isolates problems immediately
 - Faster debugging, guaranteed working workflows
 
+### Test with 10 Real Data Items
+
+**Never test with just 1 item. Always use at least 10 real data items.**
+
+| Node Type | How to Set |
+|-----------|------------|
+| Scraper/Apify | `maxResults: 10` |
+| HTTP Request | `?limit=10` in URL |
+| Database | `LIMIT 10` in query |
+| Search nodes | Set limit parameter to 10 |
+
+This reveals array handling issues, performance problems, and edge cases that single-item testing misses.
+
 ### Single Workflow Rule
 
 - Create ONE workflow (POST)

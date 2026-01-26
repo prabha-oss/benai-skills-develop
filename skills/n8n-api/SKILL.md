@@ -501,6 +501,34 @@ After adding EACH SINGLE node, you MUST:
 
 **If you add two nodes without testing between them, you are doing it WRONG.**
 
+---
+
+### Test with 10 Real Data Items
+
+**ALWAYS test with at least 10 real data items, not just 1.**
+
+```
+❌ WRONG: Limit search to 1 item for testing
+❌ WRONG: Use mock/placeholder data
+❌ WRONG: Test with empty payload
+
+✅ RIGHT: Set limit=10 or maxResults=10 on search/scrape nodes
+✅ RIGHT: Use real API endpoints returning real data
+✅ RIGHT: Verify all 10 items flow through the entire workflow
+```
+
+When configuring nodes that fetch data:
+- Apify/scraper nodes: Set `maxResults: 10`
+- HTTP Request to APIs: Include `?limit=10` or similar
+- Database queries: Add `LIMIT 10`
+- Search nodes: Set result limit to 10
+
+**Why 10 items?**
+- Reveals issues with array handling
+- Tests performance under realistic load
+- Exposes edge cases in data transformation
+- Ensures the workflow handles multiple items correctly
+
 ### One Workflow, Keep Updating
 - Create workflow ONCE with POST → get workflow ID
 - All subsequent changes use PUT to the SAME workflow ID

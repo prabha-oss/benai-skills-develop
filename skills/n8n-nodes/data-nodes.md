@@ -175,17 +175,20 @@ Before writing records, fetch the exact field names:
 ```json
 {
   "id": "airtable-schema-1",
-  "name": "Get Airtable Schema",
+  "name": "Get Base Schema",
   "type": "n8n-nodes-base.airtable",
   "typeVersion": 2.1,
   "position": [450, 300],
   "parameters": {
+    "authentication": "airtableOAuth2Api",
     "resource": "base",
     "operation": "getSchema",
     "base": {
       "__rl": true,
-      "mode": "id",
-      "value": "appXXXXXXXXXXXXXX"
+      "value": "appXXXXXXXXXXXXXX",
+      "mode": "list",
+      "cachedResultName": "My Base Name",
+      "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX"
     }
   },
   "credentials": {
@@ -196,6 +199,8 @@ Before writing records, fetch the exact field names:
   }
 }
 ```
+
+**Note:** The `cachedResultName` and `cachedResultUrl` are optional UI hints. You can also use `"mode": "id"` if you only have the base ID.
 
 This returns all tables and their exact field names.
 
@@ -209,16 +214,21 @@ This returns all tables and their exact field names.
   "typeVersion": 2.1,
   "position": [650, 300],
   "parameters": {
+    "authentication": "airtableOAuth2Api",
     "operation": "create",
     "base": {
       "__rl": true,
-      "mode": "id",
-      "value": "appXXXXXXXXXXXXXX"
+      "value": "appXXXXXXXXXXXXXX",
+      "mode": "list",
+      "cachedResultName": "My Base Name",
+      "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX"
     },
     "table": {
       "__rl": true,
-      "mode": "id",
-      "value": "tblXXXXXXXXXXXXXX"
+      "value": "tblXXXXXXXXXXXXXX",
+      "mode": "list",
+      "cachedResultName": "My Table Name",
+      "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX"
     },
     "columns": {
       "mappingMode": "defineBelow",
@@ -254,9 +264,10 @@ This returns all tables and their exact field names.
 ```json
 {
   "parameters": {
+    "authentication": "airtableOAuth2Api",
     "operation": "search",
-    "base": {"__rl": true, "mode": "id", "value": "appXXX"},
-    "table": {"__rl": true, "mode": "id", "value": "tblXXX"},
+    "base": {"__rl": true, "value": "appXXX", "mode": "list"},
+    "table": {"__rl": true, "value": "tblXXX", "mode": "list"},
     "filterByFormula": "={Status}='Active'",
     "options": {"limit": 10}
   }
@@ -267,9 +278,10 @@ This returns all tables and their exact field names.
 ```json
 {
   "parameters": {
+    "authentication": "airtableOAuth2Api",
     "operation": "update",
-    "base": {"__rl": true, "mode": "id", "value": "appXXX"},
-    "table": {"__rl": true, "mode": "id", "value": "tblXXX"},
+    "base": {"__rl": true, "value": "appXXX", "mode": "list"},
+    "table": {"__rl": true, "value": "tblXXX", "mode": "list"},
     "id": "={{ $json.recordId }}",
     "columns": {
       "mappingMode": "defineBelow",

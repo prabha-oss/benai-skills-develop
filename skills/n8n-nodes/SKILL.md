@@ -272,7 +272,57 @@ The AI Agent requires a chat model connected via `ai_languageModel` input.
 
 ## Data Nodes
 
+### Auto-Create Tables When Not Found
+
+**Google Sheets and Airtable can create new tables/sheets if they don't exist.**
+
+When the user requests a workflow that saves to a spreadsheet or table that doesn't exist yet:
+1. Use the "create" operations first
+2. Then proceed with append/update operations
+
+---
+
 ### 9. Google Sheets
+
+**Create new spreadsheet:**
+```json
+{
+  "id": "sheets-create-1",
+  "name": "Create Spreadsheet",
+  "type": "n8n-nodes-base.googleSheets",
+  "typeVersion": 4.5,
+  "position": [450, 300],
+  "parameters": {
+    "operation": "create",
+    "title": "={{ $json.spreadsheetName ?? 'New Spreadsheet' }}",
+    "sheetName": "Sheet1",
+    "options": {}
+  },
+  "credentials": {
+    "googleSheetsOAuth2Api": {
+      "id": "cred-id",
+      "name": "Google Sheets OAuth2"
+    }
+  }
+}
+```
+
+**Create new sheet (tab) in existing spreadsheet:**
+```json
+{
+  "parameters": {
+    "resource": "sheet",
+    "operation": "create",
+    "documentId": {
+      "__rl": true,
+      "mode": "id",
+      "value": "existing-spreadsheet-id"
+    },
+    "title": "New Sheet Tab",
+    "options": {}
+  }
+}
+```
 
 **Append rows:**
 ```json
@@ -339,6 +389,55 @@ The AI Agent requires a chat model connected via `ai_languageModel` input.
 ---
 
 ### 10. Airtable
+
+**Create new table:**
+```json
+{
+  "id": "airtable-create-table-1",
+  "name": "Create Airtable Table",
+  "type": "n8n-nodes-base.airtable",
+  "typeVersion": 2.1,
+  "position": [450, 300],
+  "parameters": {
+    "resource": "table",
+    "operation": "create",
+    "baseId": {
+      "__rl": true,
+      "mode": "id",
+      "value": "appXXXXXXXXXXXXXX"
+    },
+    "name": "={{ $json.tableName ?? 'New Table' }}",
+    "fields": [
+      {
+        "name": "Name",
+        "type": "singleLineText"
+      },
+      {
+        "name": "Email",
+        "type": "email"
+      },
+      {
+        "name": "Status",
+        "type": "singleSelect",
+        "options": {
+          "choices": [
+            { "name": "Active" },
+            { "name": "Inactive" }
+          ]
+        }
+      }
+    ]
+  },
+  "credentials": {
+    "airtableTokenApi": {
+      "id": "cred-id",
+      "name": "Airtable Token"
+    }
+  }
+}
+```
+
+**Airtable field types:** `singleLineText`, `multilineText`, `email`, `url`, `number`, `currency`, `percent`, `date`, `dateTime`, `checkbox`, `singleSelect`, `multipleSelects`, `attachment`
 
 **Create record:**
 ```json

@@ -163,7 +163,25 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 6. Use Native Nodes First
+### 6. NEVER Delete Workflows on Errors - UPDATE Instead
+
+**If a node has an error, FIX IT. Don't delete the workflow and start over.**
+
+```
+❌ WRONG: Node fails → Delete workflow → Create new workflow
+❌ WRONG: Error in step 5 → Delete everything → Rebuild from scratch
+
+✅ RIGHT: Node fails → Debug the error → Update the same workflow (PUT)
+✅ RIGHT: Error in step 5 → Fix that node → Continue building
+```
+
+**Rules:**
+- One workflow ID for the entire build process
+- Use PUT to update, never DELETE and POST new
+- Errors are normal - debug and fix in place
+- Keep all working nodes, only fix the broken one
+
+### 7. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -174,11 +192,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
-### 7. No Mock Data
+### 8. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 8. Test with 2 Items
+### 9. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 

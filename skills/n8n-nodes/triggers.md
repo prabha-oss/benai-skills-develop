@@ -22,7 +22,7 @@ Starting points for workflow execution.
 
 ## Webhook
 
-**ALWAYS use `responseMode: "lastNode"` (When Last Node Finishes) by default.**
+**ALWAYS use `responseMode: "onReceived"` (Respond Immediately) by default.**
 
 ```json
 {
@@ -34,7 +34,7 @@ Starting points for workflow execution.
   "parameters": {
     "path": "my-webhook-path",
     "httpMethod": "POST",
-    "responseMode": "lastNode",
+    "responseMode": "onReceived",
     "options": {}
   },
   "webhookId": "unique-webhook-id"
@@ -42,16 +42,15 @@ Starting points for workflow execution.
 ```
 
 **Response modes:**
-- `onReceived` - Respond immediately with `{"message": "Workflow was started"}` (async - need to poll executions) - **AVOID**
-- **`lastNode` - PREFERRED** - Wait for workflow to complete and return last node's output (sync - get data immediately)
-- `responseNode` - Wait for Respond to Webhook node (sync - custom response)
+- **`onReceived` - PREFERRED** - Respond immediately, workflow runs in background
+- `lastNode` - Wait for workflow to complete and return last node's output
+- `responseNode` - Wait for Respond to Webhook node (custom response)
 - `streaming` - Stream response in real-time (v2.1+)
 
-**Why `lastNode` is preferred:**
-- Returns actual workflow output, not just "Workflow was started"
-- No need to poll executions API for results
-- Caller gets data immediately in the response
-- Better for testing and debugging
+**Why `onReceived` is preferred:**
+- Caller doesn't wait for long-running workflows
+- No timeout issues on complex workflows
+- Workflow runs reliably in background
 
 **Authentication options:**
 - `none` - No authentication

@@ -137,7 +137,33 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 
 **Why:** Nodes without configured credentials will fail. Don't waste time building workflows with unconfigured nodes.
 
-### 4. Node Discovery Flow
+### 4. Only Use Node Types/Versions That Are INSTALLED
+
+**CRITICAL: If a node type or version isn't installed on the user's n8n instance, the workflow CANNOT be activated.**
+
+```
+❌ WRONG: Use typeVersion: 4.4 for HTTP Request (may not be installed)
+❌ WRONG: Guess node versions from documentation
+❌ WRONG: Use community nodes without checking template
+
+✅ RIGHT: Get EXACT type and typeVersion from credentials template
+✅ RIGHT: Template nodes are INSTALLED and WORKING
+✅ RIGHT: If node fails to activate → Check template for correct version
+```
+
+**Error signs:**
+- `"Cannot read properties of undefined (reading 'execute')"` during activation
+- "Install this node to use it" in n8n UI
+- Workflow saves but won't activate
+
+**Solution:**
+1. ALWAYS copy `type` AND `typeVersion` from the credentials template
+2. The template contains nodes that ARE installed
+3. If a node isn't in the template, ask user what version they have
+
+**Why:** Different n8n instances have different versions. What works in documentation may not be installed on the user's instance.
+
+### 5. Node Discovery Flow
 
 **When you need to add a node, follow this sequence:**
 
@@ -157,7 +183,7 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 4. Then use create/update with exact field names from schema
 ```
 
-### 5. Fetch Database Schema First
+### 6. Fetch Database Schema First
 
 **When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
 
@@ -177,7 +203,7 @@ USER PROVIDES DATABASE → FETCH SCHEMA → USE EXACT FIELD NAMES
 | Notion | `getDatabase` to see properties |
 | Postgres/MySQL | `executeQuery` with `DESCRIBE table` |
 
-### 6. One Node at a Time
+### 7. One Node at a Time
 
 ```
 ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
@@ -185,7 +211,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 7. NEVER Delete or Deactivate Workflows - UPDATE Instead
+### 8. NEVER Delete or Deactivate Workflows - UPDATE Instead
 
 **If a node has an error, FIX IT. Don't delete or deactivate the workflow.**
 
@@ -207,7 +233,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 - Errors are normal - debug and fix in place
 - Keep all working nodes, only fix the broken one
 
-### 8. Use Native Nodes First
+### 9. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -218,11 +244,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
-### 9. No Mock Data
+### 10. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 10. Test with 2 Items
+### 11. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 

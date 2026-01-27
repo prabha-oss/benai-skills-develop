@@ -4,6 +4,7 @@ Mistakes to avoid and how to debug errors.
 
 ## Contents
 - [Command Format Mistakes](#command-format-mistakes)
+- [Node Not Installed Errors](#node-not-installed-errors-critical)
 - [Airtable Mistakes](#airtable-mistakes-critical)
 - [Critical Mistakes](#critical-mistakes)
 - [API Mistakes](#api-mistakes)
@@ -86,6 +87,42 @@ jq '.nodes[] | select(.credentials)'
 ```
 
 **Why**: Bash interprets `!` for history expansion even inside quotes, turning `!=` into `\!=` which jq can't parse.
+
+---
+
+## Node Not Installed Errors (CRITICAL)
+
+### "Install this node to use it" / "Cannot read properties of undefined (reading 'execute')"
+
+This error means the node type or version is NOT INSTALLED on the user's n8n instance. The workflow cannot be activated.
+
+**Common causes:**
+- Using a `typeVersion` that's newer than what's installed
+- Using community/custom nodes that aren't installed
+- Using nodes from a newer n8n version
+
+**How to avoid:**
+
+1. **ALWAYS get node configs from the credentials template** - The template contains nodes that ARE installed and working
+2. **Use the exact `typeVersion` from the template** - Don't guess or use documentation versions
+3. **If a node fails to activate** - Check the template for the correct version
+
+**Example - HTTP Request node:**
+```
+❌ WRONG: typeVersion: 4.4  → May not be installed
+✅ RIGHT: Use typeVersion from credentials template (e.g., 4.2)
+```
+
+**Debugging:**
+- Error during activation: `"Cannot read properties of undefined (reading 'execute')"`
+- This usually means a node type/version doesn't exist
+- Check the workflow in n8n UI - uninstalled nodes show "Install this node to use it"
+
+**Solution:**
+1. Fetch credentials template
+2. Find the node type you need
+3. Copy the EXACT `type` and `typeVersion` from the template
+4. If not in template, ask user what version they have installed
 
 ---
 

@@ -106,8 +106,16 @@ jq '.nodes[] | select(.credentials)'
 - `resource: "base"` → `getMany`, `getSchema`
 - `resource: "record"` → `create`, `delete`, `get`, `search`, `update`, `upsert`
 
-### Wrong Parameter Names (base vs baseId)
+### Wrong Parameter Names - Data Node vs Trigger
 
+**Airtable data node (v2.1) and Airtable Trigger (v1) use DIFFERENT parameter names!**
+
+| Node Type | Base Parameter | Table Parameter |
+|-----------|----------------|-----------------|
+| Airtable (data node v2.1) | `base` | `table` |
+| Airtable Trigger (v1) | `baseId` | `tableId` |
+
+**For Airtable DATA node:**
 ❌ **Wrong**: Using `baseId` and `tableId`
 ```json
 {
@@ -124,6 +132,8 @@ jq '.nodes[] | select(.credentials)'
   "table": {"__rl": true, "mode": "id", "value": "tblXXX"}
 }
 ```
+
+**For Airtable TRIGGER node:** Use `baseId` and `tableId` (the trigger uses different parameter names).
 
 ### Field Names Must Match EXACTLY
 

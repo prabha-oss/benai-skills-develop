@@ -169,6 +169,8 @@ Use with AI Agent for conversational workflows.
 
 ## Airtable Trigger
 
+**Note:** Airtable Trigger (v1) uses `baseId`/`tableId` parameters. This is different from Airtable data node (v2.1) which uses `base`/`table`. Use the correct parameter names for each node type.
+
 ```json
 {
   "id": "airtable-trigger-1",

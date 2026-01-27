@@ -37,8 +37,9 @@ The skills will automatically create this file if missing and prompt for values.
 |----------|----------|
 | 1. Native node | A built-in n8n node exists for the service (Slack, Google Sheets, etc.) |
 | 2. **AI Agent node** | For ANY AI/LLM task - ALWAYS prefer over HTTP Request to OpenAI/Anthropic APIs |
-| 3. HTTP Request | Native has issues OR no node exists AND not an AI task |
-| 4. Code node | Complex logic that can't be done with built-in nodes |
+| 3. **Loop node (Split In Batches)** | For processing multiple items - ALWAYS prefer over Code node loops |
+| 4. HTTP Request | Native has issues OR no node exists AND not an AI task |
+| 5. Code node | Complex logic that can't be done with built-in nodes |
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model (OpenAI/Anthropic), NOT HTTP Request.**
 
@@ -54,6 +55,22 @@ The skills will automatically create this file if missing and prompt for values.
 - API endpoint not supported by native node
 - Custom API not covered by any node
 - **NOT for AI/LLM calls** - use AI Agent node instead
+
+### Loop Node (Split In Batches) Preference
+
+**ALWAYS prefer the Loop node (Split In Batches) for processing multiple items.**
+
+```
+❌ WRONG: Code node with for-loop
+✅ RIGHT: Split In Batches node → Process Item → Loop back
+```
+
+**Why Loop node is preferred:**
+- Visually cleaner in the n8n UI
+- Easy to understand the flow
+- Built-in batch size control
+- Easier to debug (can see each iteration)
+- Consistent with n8n's visual workflow paradigm
 
 ### Node Discovery Flow
 
@@ -132,18 +149,18 @@ The skills will automatically create this file if missing and prompt for values.
 - Testing after each node isolates problems immediately
 - Faster debugging, guaranteed working workflows
 
-### Test with 10 Real Data Items
+### Test with 2 Items
 
-**Never test with just 1 item. Always use at least 10 real data items.**
+**Always set `limit=2` on data-fetching nodes for fast testing.**
 
 | Node Type | How to Set |
 |-----------|------------|
-| Scraper/Apify | `maxResults: 10` |
-| HTTP Request | `?limit=10` in URL |
-| Database | `LIMIT 10` in query |
-| Search nodes | Set limit parameter to 10 |
+| Scraper/Apify | `maxResults: 2` |
+| HTTP Request | `?limit=2` in URL |
+| Database | `LIMIT 2` in query |
+| Search nodes | Set limit parameter to 2 |
 
-This reveals array handling issues, performance problems, and edge cases that single-item testing misses.
+This keeps tests fast while still verifying array handling works correctly.
 
 ### Single Workflow Rule
 

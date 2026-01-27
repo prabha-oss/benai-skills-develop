@@ -51,9 +51,13 @@ BEFORE ADDING NODE → READ the matching reference file → GET exact config →
 
 | Priority | Use When |
 |----------|----------|
-| 1. Native node | Built-in node exists for the service |
-| 2. HTTP Request | Native node has known issues OR no node exists |
-| 3. Code node | Complex logic that can't be done with built-in nodes |
+| 1. Native node | Built-in node exists for the service (Slack, Google Sheets, etc.) |
+| 2. **AI Agent node** | For ANY AI/LLM task - ALWAYS prefer over HTTP Request to OpenAI/Anthropic APIs |
+| 3. **Loop node (Split In Batches)** | For processing multiple items - ALWAYS prefer over Code node loops |
+| 4. HTTP Request | Native has issues OR no node exists AND not an AI task |
+| 5. Code node | Complex logic that can't be done with built-in nodes |
+
+**For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
 ---
 

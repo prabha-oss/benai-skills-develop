@@ -62,6 +62,8 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api
 
 ### Deactivate Workflow
 
+**⚠️ WARNING: NEVER deactivate workflows during the build process.** Just use PUT to update directly. Deactivation is only for when you intentionally want to stop a workflow from running.
+
 ```bash
 export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/api/v1/workflows/{WORKFLOW_ID}/deactivate" -H "X-N8N-API-KEY: ${N8N_API_KEY}" | jq .
 ```
@@ -184,6 +186,8 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/web
 
 ## Webhook Node Configuration
 
+**ALWAYS use `responseMode: "onReceived"` (Respond Immediately) by default.**
+
 ```json
 {
   "id": "webhook-trigger",
@@ -194,13 +198,18 @@ export $(cat .env | grep -v '^#' | xargs) && curl -s -X POST "${N8N_API_URL}/web
   "parameters": {
     "path": "my-webhook-path",
     "httpMethod": "POST",
-    "responseMode": "lastNode"
+    "responseMode": "onReceived"
   },
   "webhookId": "unique-webhook-id"
 }
 ```
 
 Response modes:
-- `onReceived` - Respond immediately
+- **`onReceived` - PREFERRED** - Respond immediately, workflow runs in background
 - `lastNode` - Wait for workflow to complete
 - `responseNode` - Wait for Respond to Webhook node
+
+**Why `onReceived` is preferred:**
+- Caller doesn't wait for long-running workflows
+- No timeout issues on complex workflows
+- Workflow runs reliably in background

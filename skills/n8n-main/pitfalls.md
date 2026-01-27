@@ -126,6 +126,53 @@ This error means the node type or version is NOT INSTALLED on the user's n8n ins
 
 ---
 
+## Split In Batches Loop Mistakes (CRITICAL)
+
+### Wrong Output Index - Loop Doesn't Run
+
+**THIS IS THE #1 LOOP MISTAKE. Output 0 and Output 1 are NOT interchangeable!**
+
+```
+Split In Batches outputs:
+- Output 0 = DONE (items go here AFTER all processing completes)
+- Output 1 = LOOP (current batch goes here for processing)
+```
+
+❌ **Wrong**: Connecting processing to output 0
+```json
+"Loop Over Items": {
+  "main": [
+    [{ "node": "Process Item", "type": "main", "index": 0 }],  // WRONG! This is output 0 (done)
+    []
+  ]
+}
+// Result: Loop runs once then stops, processing node may not execute
+```
+
+✅ **Right**: Connecting processing to output 1
+```json
+"Loop Over Items": {
+  "main": [
+    [],                                                         // Output 0: done (empty or final step)
+    [{ "node": "Process Item", "type": "main", "index": 0 }]   // Output 1: loop (processing here!)
+  ]
+}
+// Result: Loop processes all items correctly
+```
+
+**Symptoms of wrong output:**
+- Loop only runs once
+- Processing node doesn't execute
+- Error: `"Cannot read properties of undefined (reading 'execute')"`
+- Workflow activates but items aren't processed
+
+**Always verify:**
+1. Output 1 (second array) connects to your processing nodes
+2. Processing nodes connect BACK to Loop node input
+3. Output 0 (first array) connects to "done" step or is empty
+
+---
+
 ## Airtable Mistakes (CRITICAL)
 
 ### Airtable Does NOT Support Table Creation

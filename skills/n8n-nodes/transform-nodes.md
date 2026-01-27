@@ -614,9 +614,44 @@ Why Loop node is preferred:
 
 ### Split In Batches Loop (PREFERRED - Most Common)
 
-**Use case:** Process items one at a time or in batches, loop back to continue with next batch.
+## ⚠️ CRITICAL: Split In Batches Output Indexes
 
-**Pattern from real workflow ("Loop Over Ads"):**
+**THIS IS THE #1 MISTAKE WITH LOOPS. GET THIS RIGHT OR THE LOOP WON'T WORK!**
+
+```
+Split In Batches has TWO outputs:
+┌─────────────────────────────┐
+│   Split In Batches          │
+│                             │
+│  Output 0 ──→ "DONE"        │  ← Items go here AFTER all items processed
+│  Output 1 ──→ "LOOP"        │  ← Current batch goes here (CONNECT PROCESSING HERE!)
+└─────────────────────────────┘
+```
+
+**Output 0 = DONE** - Empty during loop, receives all items when loop completes
+**Output 1 = LOOP** - Receives current batch item(s) for processing
+
+```
+❌ WRONG - Connecting processing to output 0:
+"Loop Over Items": {
+  "main": [
+    [{ "node": "Process Item", "type": "main", "index": 0 }],  // OUTPUT 0 - WRONG!
+    []
+  ]
+}
+
+✅ CORRECT - Connecting processing to output 1:
+"Loop Over Items": {
+  "main": [
+    [],                                                         // OUTPUT 0 - empty or "Done" node
+    [{ "node": "Process Item", "type": "main", "index": 0 }]   // OUTPUT 1 - processing goes here!
+  ]
+}
+```
+
+### Complete Loop Example
+
+**Use case:** Process items one at a time, with processing node in between.
 
 ```json
 {
@@ -637,7 +672,7 @@ Why Loop node is preferred:
       "name": "Process Item",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [650, 300],
+      "position": [650, 400],
       "parameters": {
         "mode": "manual",
         "assignments": {
@@ -651,6 +686,26 @@ Why Loop node is preferred:
           ]
         }
       }
+    },
+    {
+      "id": "done-1",
+      "name": "Loop Done",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [650, 200],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "uuid-done",
+              "name": "status",
+              "value": "completed",
+              "type": "string"
+            }
+          ]
+        }
+      }
     }
   ],
   "connections": {
@@ -659,7 +714,7 @@ Why Loop node is preferred:
     },
     "Loop Over Items": {
       "main": [
-        [],
+        [{ "node": "Loop Done", "type": "main", "index": 0 }],
         [{ "node": "Process Item", "type": "main", "index": 0 }]
       ]
     },
@@ -671,18 +726,40 @@ Why Loop node is preferred:
 ```
 
 **Key points:**
-- Split In Batches output 0 = "done" (empty when more items remain)
-- Split In Batches output 1 = current batch items
-- Last node in loop connects BACK to Split In Batches input
+- **Output 0** → "Loop Done" node (runs AFTER all items processed)
+- **Output 1** → "Process Item" node (runs for EACH item)
+- "Process Item" connects BACK to "Loop Over Items" input (loops back)
 - Loop continues until all items processed, then exits via output 0
 
-**Connection pattern:**
+**Visual connection pattern:**
 ```
-Get Items → Loop Over Items ─┬─→ [output 0: Done] → Next Step
-                             │
-                             └─→ [output 1: Loop] → Process → Save ─┐
-                                      ↑                              │
-                                      └──────────────────────────────┘
+                                 ┌──→ [Output 0: DONE] → "Loop Done" → Continue workflow
+                                 │
+Get Items → Loop Over Items ─────┤
+                                 │
+                                 └──→ [Output 1: LOOP] → "Process Item" ─┐
+                                              ↑                          │
+                                              └──────────────────────────┘
+```
+
+### Minimal Loop (No Done Handler)
+
+If you don't need to do anything after the loop, output 0 can be empty:
+
+```json
+{
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],                                                         // Output 0: empty (loop just ends)
+        [{ "node": "Process Item", "type": "main", "index": 0 }]   // Output 1: processing
+      ]
+    },
+    "Process Item": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    }
+  }
+}
 ```
 
 ### If/Else Branch with Loop Back

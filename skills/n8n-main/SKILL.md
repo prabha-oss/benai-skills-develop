@@ -62,18 +62,21 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 
 ## Critical Rules (Memorize These)
 
-### 1. USE THE TOOLS THE USER SPECIFIES (CRITICAL - NEVER IGNORE)
+### 1. USE THE TOOLS THE USER SPECIFIES (CRITICAL - NEVER IGNORE OR DEFER)
 
-**If the user mentions specific tools, nodes, or services - YOU MUST USE THEM. No exceptions.**
+**If the user mentions specific tools, nodes, or services - YOU MUST USE THEM. No exceptions. No deferring.**
 
 ```
 ❌ WRONG: User says "use Apify" → You use HTTP Request to scrape
-❌ WRONG: User says "use FullEnrich" → You skip it and use a different enrichment
+❌ WRONG: User says "use FullEnrich" → You skip it citing "complexity"
+❌ WRONG: User says "use FullEnrich" → You "defer it for later"
 ❌ WRONG: User says "use OpenAI" → You use Anthropic instead
+❌ WRONG: Hit a technical issue → Give up and say "can be added later"
 
 ✅ RIGHT: User says "use Apify" → You use Apify node
-✅ RIGHT: User says "use FullEnrich" → You add FullEnrich to the workflow
+✅ RIGHT: User says "use FullEnrich" → You add FullEnrich AND MAKE IT WORK
 ✅ RIGHT: User says "use OpenAI" → You use OpenAI Chat Model
+✅ RIGHT: Hit a technical issue → Debug it, fix it, make it work
 ```
 
 **Rules:**
@@ -81,8 +84,11 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 - If user doesn't specify → Use your best judgment
 - If unsure about a tool → ASK the user, don't skip it
 - NEVER substitute a different tool for what the user requested
+- NEVER defer a user-requested tool "for later" - implement it NOW
+- NEVER skip a tool citing "complexity" or "API issues" - work through it
+- If you hit errors → Debug and fix, don't give up
 
-**This is the #1 rule. Ignoring user's tool requirements breaks trust.**
+**This is the #1 rule. Skipping, deferring, or making excuses about user-requested tools breaks trust.**
 
 ### 2. Only Use Nodes From Credentials Template (Unless User Requests)
 

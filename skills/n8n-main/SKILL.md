@@ -163,21 +163,25 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 6. NEVER Delete Workflows on Errors - UPDATE Instead
+### 6. NEVER Delete or Deactivate Workflows - UPDATE Instead
 
-**If a node has an error, FIX IT. Don't delete the workflow and start over.**
+**If a node has an error, FIX IT. Don't delete or deactivate the workflow.**
 
 ```
 ❌ WRONG: Node fails → Delete workflow → Create new workflow
 ❌ WRONG: Error in step 5 → Delete everything → Rebuild from scratch
+❌ WRONG: Making changes → Deactivate workflow → Update → Reactivate
+❌ WRONG: Deactivate workflow for any reason during build
 
 ✅ RIGHT: Node fails → Debug the error → Update the same workflow (PUT)
 ✅ RIGHT: Error in step 5 → Fix that node → Continue building
+✅ RIGHT: Keep workflow active, just PUT updates directly
 ```
 
 **Rules:**
 - One workflow ID for the entire build process
 - Use PUT to update, never DELETE and POST new
+- NEVER use the deactivate endpoint - it's unnecessary
 - Errors are normal - debug and fix in place
 - Keep all working nodes, only fix the broken one
 

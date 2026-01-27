@@ -603,7 +603,16 @@ Nodes for data transformation, logic, and workflow control.
 
 ## Looping Patterns
 
-### Split In Batches Loop (Most Common)
+**ALWAYS prefer the Loop node (Split In Batches) for processing multiple items.**
+
+Why Loop node is preferred:
+- Visually cleaner in the n8n UI
+- Easy to understand the flow
+- Built-in batch size control
+- Clear "done" vs "loop" outputs
+- Better than Code node loops or manual iteration
+
+### Split In Batches Loop (PREFERRED - Most Common)
 
 **Use case:** Process items one at a time or in batches, loop back to continue with next batch.
 

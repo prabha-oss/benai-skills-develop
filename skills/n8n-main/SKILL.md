@@ -90,7 +90,29 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 
 **This is the #1 rule. Skipping, deferring, or making excuses about user-requested tools breaks trust.**
 
-### 2. Only Use Nodes From Credentials Template (Unless User Requests)
+### 2. NEVER Simplify Patterns When Hitting Errors - FIX THE ISSUE
+
+**When a pattern (like Loop node) has an error, FIX IT. Don't switch to a "simpler" approach.**
+
+```
+❌ WRONG: Loop node has error → "Let me try a simpler approach without the loop"
+❌ WRONG: Split In Batches fails → "I'll process all items at once instead"
+❌ WRONG: Pattern is complex → Remove it and use something "easier"
+❌ WRONG: Debug is hard → Simplify the workflow by removing features
+
+✅ RIGHT: Loop node has error → Debug why → Fix the loop configuration
+✅ RIGHT: Split In Batches fails → Check connections → Fix the issue
+✅ RIGHT: Pattern is complex → Keep it, make it work
+✅ RIGHT: Debug is hard → Keep debugging until it works
+```
+
+**Rules:**
+- Stick with preferred patterns (Loop node, AI Agent, etc.) even when they fail
+- Debug and fix the issue, don't downgrade to simpler approaches
+- "Simpler" often means worse - keep the correct architecture
+- If Loop node is the right pattern, make Loop node work
+
+### 3. Only Use Nodes From Credentials Template (Unless User Requests)
 
 **NEVER add nodes that require authentication unless:**
 1. The node exists in the user's credentials template, OR
@@ -115,7 +137,7 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 
 **Why:** Nodes without configured credentials will fail. Don't waste time building workflows with unconfigured nodes.
 
-### 3. Node Discovery Flow
+### 4. Node Discovery Flow
 
 **When you need to add a node, follow this sequence:**
 
@@ -135,7 +157,7 @@ SKILL LOADS → READ FILES IMMEDIATELY → CHECK .env → THEN respond to user
 4. Then use create/update with exact field names from schema
 ```
 
-### 4. Fetch Database Schema First
+### 5. Fetch Database Schema First
 
 **When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
 
@@ -155,7 +177,7 @@ USER PROVIDES DATABASE → FETCH SCHEMA → USE EXACT FIELD NAMES
 | Notion | `getDatabase` to see properties |
 | Postgres/MySQL | `executeQuery` with `DESCRIBE table` |
 
-### 5. One Node at a Time
+### 6. One Node at a Time
 
 ```
 ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
@@ -163,7 +185,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **NEVER add 2+ nodes without testing between them.**
 
-### 6. NEVER Delete or Deactivate Workflows - UPDATE Instead
+### 7. NEVER Delete or Deactivate Workflows - UPDATE Instead
 
 **If a node has an error, FIX IT. Don't delete or deactivate the workflow.**
 
@@ -185,7 +207,7 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 - Errors are normal - debug and fix in place
 - Keep all working nodes, only fix the broken one
 
-### 7. Use Native Nodes First
+### 8. Use Native Nodes First
 
 | Priority | Use When |
 |----------|----------|
@@ -196,11 +218,11 @@ ADD NODE → TEST → ADD NEXT NODE → TEST → REPEAT
 
 **For AI tasks: ALWAYS use AI Agent node + Chat Model, NOT HTTP Request to OpenAI API.**
 
-### 8. No Mock Data
+### 9. No Mock Data
 
 Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real values.
 
-### 9. Test with 2 Items
+### 10. Test with 2 Items
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 

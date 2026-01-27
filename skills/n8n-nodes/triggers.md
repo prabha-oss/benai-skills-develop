@@ -22,6 +22,8 @@ Starting points for workflow execution.
 
 ## Webhook
 
+**ALWAYS use `responseMode: "lastNode"` (When Last Node Finishes) by default.**
+
 ```json
 {
   "id": "webhook-1",
@@ -40,12 +42,16 @@ Starting points for workflow execution.
 ```
 
 **Response modes:**
-- `onReceived` - Respond immediately with `{"message": "Workflow was started"}` (async - need to poll executions)
-- `lastNode` - Wait for workflow to complete and return last node's output (sync - get data immediately)
+- `onReceived` - Respond immediately with `{"message": "Workflow was started"}` (async - need to poll executions) - **AVOID**
+- **`lastNode` - PREFERRED** - Wait for workflow to complete and return last node's output (sync - get data immediately)
 - `responseNode` - Wait for Respond to Webhook node (sync - custom response)
 - `streaming` - Stream response in real-time (v2.1+)
 
-**For schema fetching, use `lastNode`** to get the data directly in the webhook response instead of polling executions.
+**Why `lastNode` is preferred:**
+- Returns actual workflow output, not just "Workflow was started"
+- No need to poll executions API for results
+- Caller gets data immediately in the response
+- Better for testing and debugging
 
 **Authentication options:**
 - `none` - No authentication

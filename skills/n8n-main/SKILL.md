@@ -252,6 +252,29 @@ Never use placeholder URLs, fake IDs, or "REPLACE_ME" values. Ask user for real 
 
 Always set `limit=2` or `maxResults=2` on data-fetching nodes for fast testing.
 
+### 12. Only Work With User-Specified or Newly Created Workflows
+
+**NEVER check, run, modify, or interact with workflows the user didn't mention.**
+
+```
+❌ WRONG: List all workflows and pick one to modify
+❌ WRONG: Check other workflows to "understand the instance"
+❌ WRONG: Run a workflow the user didn't ask about
+❌ WRONG: Delete or deactivate workflows without explicit user request
+
+✅ RIGHT: User says "create a new workflow" → Create from scratch
+✅ RIGHT: User says "update workflow X" → Work only with workflow X
+✅ RIGHT: User gives workflow ID → Work only with that ID
+✅ RIGHT: Keep track of workflows YOU created this session
+```
+
+**Allowed workflows:**
+1. Workflows the user explicitly mentions by name or ID
+2. Workflows you created from scratch during this session
+3. The credentials template (for fetching node configs only)
+
+**Why:** The user's n8n instance may have production workflows. Don't touch anything you weren't asked to work with.
+
 ---
 
 ## Build Process (Follow Exactly)

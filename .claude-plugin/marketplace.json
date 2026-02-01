@@ -10,27 +10,23 @@
   "plugins": [
     {
       "name": "n8n",
-      "source": "./",
+      "source": "./skills/n8n",
       "description": "Build, test, and deploy n8n workflows via REST API with incremental testing",
       "version": "1.0.0",
       "author": {
         "name": "BenAI"
       },
-      "keywords": ["n8n", "workflow", "automation", "api"],
-      "skills": ["./skills/n8n"],
-      "strict": false
+      "keywords": ["n8n", "workflow", "automation", "api"]
     },
     {
       "name": "video",
-      "source": "./",
+      "source": "./skills/video",
       "description": "Video editing with FFmpeg and Remotion - stitching, transitions, captions, teasers",
       "version": "1.0.0",
       "author": {
         "name": "BenAI"
       },
-      "keywords": ["video", "ffmpeg", "remotion", "editing", "captions"],
-      "skills": ["./skills/video"],
-      "strict": false
+      "keywords": ["video", "ffmpeg", "remotion", "editing", "captions"]
     }
   ]
 }

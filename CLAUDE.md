@@ -1,15 +1,15 @@
 # BenAI Skills - Expert Automation
 
-## What This Plugin Does
+## What This Is
 
-This plugin provides expert-level automation capabilities through specialized skills for n8n workflow automation and video editing.
+A marketplace of expert automation plugins for Claude Code. Each plugin can be installed individually.
 
-## Available Skills
+## Available Plugins
 
-| Skill | Command | Purpose |
-|-------|---------|---------|
-| n8n | `/benai-skills:n8n` | Complete n8n workflow automation via REST API |
-| video | `/benai-skills:video` | Video editing with FFmpeg and Remotion |
+| Plugin | Command | Purpose |
+|--------|---------|---------|
+| n8n | `/n8n` | Complete n8n workflow automation via REST API |
+| video | `/video` | Video editing with FFmpeg and Remotion |
 
 ## n8n Skill
 

@@ -8,22 +8,18 @@ Expert automation skills for Claude Code.
 # Add marketplace
 /plugin marketplace add naveedharri/benai-skills
 
-# Install
-/plugin install benai-skills
+# Install individual plugins
+/plugin install n8n@benai-skills
+/plugin install video@benai-skills
 ```
 
-Or for local development:
-```bash
-claude --plugin-dir /path/to/benai-skills
-```
-
-## Available Skills
+## Available Plugins
 
 ### n8n Automation
 
-| Skill | Command | Purpose |
-|-------|---------|---------|
-| n8n | `/benai-skills:n8n` | Complete n8n workflow automation |
+| Plugin | Command | Purpose |
+|--------|---------|---------|
+| n8n | `/n8n` | Complete n8n workflow automation |
 
 **Features:**
 - Build, test, and deploy workflows via REST API
@@ -41,9 +37,9 @@ N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n.app.n8n.cloud/workflow/template-id
 
 ### Video Editing
 
-| Skill | Command | Purpose |
-|-------|---------|---------|
-| video | `/benai-skills:video` | Full video editing pipeline |
+| Plugin | Command | Purpose |
+|--------|---------|---------|
+| video | `/video` | Full video editing pipeline |
 
 **Features:** Stitching, transitions, TikTok-style captions, teasers, transcription, title cards, graphics generation.
 
@@ -54,30 +50,29 @@ N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n.app.n8n.cloud/workflow/template-id
 ```
 benai-skills/
 ├── .claude-plugin/
-│   ├── plugin.json
 │   └── marketplace.json
 ├── skills/
 │   ├── n8n/
 │   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   ├── references/
-│   │   └── assets/
+│   │   └── references/
 │   └── video/
 │       ├── SKILL.md
-│       ├── scripts/
-│       ├── references/
-│       └── assets/
+│       └── references/
 ├── CLAUDE.md
 └── README.md
 ```
 
-## Adding New Skills
+## Adding New Plugins
 
-Following the [Agent Skills Specification](https://agentskills.io/specification):
-
-1. Create folder: `skills/<skill-name>/`
-2. Add `SKILL.md` with frontmatter and instructions
-3. Optional: Add `scripts/`, `references/`, `assets/` folders
+1. Create skill folder: `skills/<name>/SKILL.md`
+2. Add plugin entry to `.claude-plugin/marketplace.json`:
+   ```json
+   {
+     "name": "<name>",
+     "source": "./skills/<name>",
+     "description": "..."
+   }
+   ```
 
 ## License
 

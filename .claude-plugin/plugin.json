@@ -1,9 +1,11 @@
 {
   "name": "benai-skills",
-  "description": "BenAI expert skills for n8n workflow automation",
-  "version": "1.0.8",
+  "description": "BenAI expert skills - n8n automation, video editing, and more",
+  "version": "1.2.0",
   "author": {
     "name": "BenAI"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": ["n8n", "workflow", "automation", "video", "ffmpeg", "remotion"],
+  "skills": "./skills"
 }

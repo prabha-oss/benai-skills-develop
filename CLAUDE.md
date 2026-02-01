@@ -1,23 +1,21 @@
-# BenAI Skills - n8n Automation Expertise
+# BenAI Skills - Expert Automation
 
 ## What This Plugin Does
 
-This plugin provides expert-level n8n workflow automation capabilities through a set of specialized skills. It enables building, testing, and deploying production-ready n8n workflows via the REST API.
+This plugin provides expert-level automation capabilities through specialized skills for n8n workflow automation and video editing.
 
 ## Available Skills
 
-### Core Operations
-
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| n8n-main | `/benai-skills:n8n-main` | All workflow CRUD operations via REST API |
-| n8n-credentials | `/benai-skills:n8n-credentials` | Extract node configs from template workflows |
-| n8n-expressions | `/benai-skills:n8n-expressions` | Expression syntax, patterns, and debugging |
-| n8n-development | `/benai-skills:n8n-development` | Code nodes, workflow patterns, node configuration |
+| n8n | `/benai-skills:n8n` | Complete n8n workflow automation via REST API |
+| video | `/benai-skills:video` | Video editing with FFmpeg and Remotion |
 
-## Configuration
+## n8n Skill
 
-All skills require a `.env` file in your working directory:
+### Configuration
+
+Requires a `.env` file in your working directory:
 
 ```
 N8N_API_URL=https://your-n8n-instance.com
@@ -25,9 +23,7 @@ N8N_API_KEY=your-api-key
 N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n-instance.com/workflow/template-id
 ```
 
-The skills will automatically create this file if missing and prompt for values.
-
-## Build Philosophy
+The skill will automatically create this file if missing and prompt for values.
 
 ### Node Selection Priority
 
@@ -41,145 +37,17 @@ The skills will automatically create this file if missing and prompt for values.
 | 4. HTTP Request | Native has issues OR no node exists AND not an AI task |
 | 5. Code node | Complex logic that can't be done with built-in nodes |
 
-**For AI tasks: ALWAYS use AI Agent node + Chat Model (OpenAI/Anthropic), NOT HTTP Request.**
-
-**Why native nodes?**
-- Pre-built authentication handling
-- Tested and maintained by n8n team
-- Better error messages
-- Simpler configuration
-- Credentials template compatibility
-
-**When HTTP Request is acceptable:**
-- Native node has a known bug or missing feature
-- API endpoint not supported by native node
-- Custom API not covered by any node
-- **NOT for AI/LLM calls** - use AI Agent node instead
-
-### Loop Node (Split In Batches) Preference
-
-**ALWAYS prefer the Loop node (Split In Batches) for processing multiple items.**
-
-```
-❌ WRONG: Code node with for-loop
-✅ RIGHT: Split In Batches node → Process Item → Loop back
-```
-
-**Why Loop node is preferred:**
-- Visually cleaner in the n8n UI
-- Easy to understand the flow
-- Built-in batch size control
-- Easier to debug (can see each iteration)
-- Consistent with n8n's visual workflow paradigm
-
-### Node Discovery Flow
-
-**When adding any node, follow this sequence:**
-
-```
-1. LOAD n8n-nodes skill
-2. CHECK if node is documented (triggers.md, data-nodes.md, ai-nodes.md, transform-nodes.md)
-3. LIST available operations for that node
-4. If DATABASE node → FETCH SCHEMA first
-5. USE appropriate operation with correct config
-```
-
-### Fetch Database Schema First
-
-**When workflow involves an existing database (Airtable, Google Sheets, Notion, etc.):**
-
-1. Add a schema fetch node to get actual field names
-2. Execute to see exact field names
-3. Use those exact field names when writing data
-4. Work with existing fields - don't ask user to create new ones
-
-**Why:** Field names must match exactly (case-sensitive, space-sensitive). Guessing causes errors.
-
-| Database | Schema Operation |
-|----------|------------------|
-| Airtable | `getSchema` on base resource |
-| Google Sheets | `getAll` first row to see headers |
-| Notion | `getDatabase` to see properties |
-
-### Never Mock Data
-
-**CRITICAL: Never use placeholder, fake, or mock data when building workflows.**
-
-- Use real API endpoints, not fake URLs
-- Use real webhook paths that will actually be called
-- Use real credential references from the template
-- If you don't have real data, ask the user for it
-
-**Wrong:**
-```json
-"url": "https://api.example.com/placeholder"
-"documentId": "REPLACE_WITH_REAL_ID"
-"apiKey": "your-api-key-here"
-```
-
-**Right:**
-```json
-"url": "https://api.openai.com/v1/chat/completions"
-"documentId": {"__rl": true, "mode": "id", "value": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"}
-"credentials": {"openAiApi": {"id": "abc123", "name": "OpenAI Production"}}
-```
-
 ### Incremental Build-Test Process (MANDATORY)
 
-**THE #1 RULE: Add ONE node → Test entire workflow → Repeat**
+**THE #1 RULE: Add ONE node -> Test entire workflow -> Repeat**
 
 ```
-❌ WRONG: Add Node A → Add Node B → Add Node C → Test → Error → Which node failed???
-
-✅ RIGHT: Add Node A → Test ✓ → Add Node B → Test ✓ → Add Node C → Test ✓ → Done
+Add Node A -> Test -> Add Node B -> Test -> Add Node C -> Test -> Done
 ```
 
 **NEVER add two or more nodes at once. ALWAYS test after each single node.**
 
-| Step | Action | Must Do Before Next Step |
-|------|--------|--------------------------|
-| 1 | Create workflow with trigger only | Test - verify trigger works |
-| 2 | Add ONE node | Test - verify new node in runData |
-| 3 | Add next ONE node | Test - verify new node in runData |
-| 4 | Repeat step 3 | Test after EVERY node |
-| 5 | Report success | Only after ALL nodes individually tested |
-
-**Why this matters:**
-- If you add 3 nodes and get an error, you don't know which one failed
-- Testing after each node isolates problems immediately
-- Faster debugging, guaranteed working workflows
-
-### Test with 2 Items
-
-**Always set `limit=2` on data-fetching nodes for fast testing.**
-
-| Node Type | How to Set |
-|-----------|------------|
-| Scraper/Apify | `maxResults: 2` |
-| HTTP Request | `?limit=2` in URL |
-| Database | `LIMIT 2` in query |
-| Search nodes | Set limit parameter to 2 |
-
-This keeps tests fast while still verifying array handling works correctly.
-
-### Single Workflow Rule
-
-- Create ONE workflow (POST)
-- Update incrementally (PUT)
-- Never create new workflows for fixes
-- Same workflow ID throughout build
-
-### Template-Based Configuration
-
-Always copy FULL node configurations from the credentials template:
-- `type` - exact node type
-- `typeVersion` - version from template
-- `parameters` - all settings
-- `credentials` - authentication
-
-## Key API Patterns
-
-### Correct Methods
+### Key API Patterns
 
 | Operation | Method | Endpoint |
 |-----------|--------|----------|
@@ -188,74 +56,21 @@ Always copy FULL node configurations from the credentials template:
 | Activate | **POST** | `/api/v1/workflows/{id}/activate` |
 | Execute | POST | `/webhook/{path}` |
 
-### Common Mistakes to Avoid
+### Expression Essentials
 
-- Using PATCH instead of PUT for updates
-- Using PUT with `{active: true}` instead of `/activate` endpoint
-- Trying to execute manual trigger workflows via API
-- Building all nodes then testing (build incrementally!)
-- Fetching all executions (always use `?limit=2`)
-
-## Expression Essentials
-
-### The Golden Rule
-
-All dynamic content requires double curly braces: `{{ expression }}`
-
-### Webhook Data Location
-
-**Critical**: Webhook data lives under `.body`:
+**Webhook data lives under `.body`:**
 ```
-{{ $json.body.fieldName }}  ← Correct
-{{ $json.fieldName }}       ← Wrong (won't work)
+{{ $json.body.fieldName }}  <- Correct
+{{ $json.fieldName }}       <- Wrong (won't work)
 ```
 
-### Cross-Node References
+### Code Node Return Format
 
-```javascript
-{{ $node["Node Name"].json.field }}
-{{ $('Node Name').item.json.field }}
-```
-
-## Code Node Patterns
-
-### JavaScript Return Format
-
-Always return array of objects with `json` key:
 ```javascript
 return [{ json: { result: "value" } }];
 ```
 
-### Data Access
-
-```javascript
-// Get all items
-const items = $input.all();
-
-// Get first item
-const first = $input.first();
-
-// Webhook data
-const body = $input.first().json.body;
-```
-
-## Workflow Patterns
-
-### 1. Webhook Processing
-Webhook → Process → Respond
-
-### 2. Data Scraping
-Trigger → Scrape → Transform → Store
-
-### 3. AI Pipeline
-Trigger → Fetch Data → AI Analysis → Output
-
-### 4. Scheduled Sync
-Schedule → Fetch Source → Transform → Update Target
-
-## Testing Requirements
-
-After EVERY node addition:
+### Testing After Each Node
 
 ```bash
 # 1. Activate
@@ -266,25 +81,42 @@ curl -X POST "${N8N_API_URL}/webhook/{path}" -d '{}'
 
 # 3. Check status
 curl "${N8N_API_URL}/api/v1/executions?limit=1" | jq '.data[0].status'
-
-# 4. Verify node ran
-curl "${N8N_API_URL}/api/v1/executions/{id}?includeData=true" | jq '.data.resultData.runData | keys'
 ```
 
-**Do NOT proceed until status = "success" and new node appears in runData.**
+### Common Mistakes to Avoid
 
-## Error Debugging
+- Using PATCH instead of PUT for updates
+- Using PUT with `{active: true}` instead of `/activate` endpoint
+- Building all nodes then testing (build incrementally!)
+- Fetching all executions (always use `?limit=2`)
+- Using placeholder/mock data instead of real values
 
-### WorkflowHasIssuesError
-Node has incomplete configuration. Check required fields.
+## Video Skill
 
-### Method Not Allowed
-Wrong HTTP method. Use PUT for updates, POST for activate.
+### Tool Selection
 
-### Execution Errors
-```bash
-curl "${N8N_API_URL}/api/v1/executions/{id}?includeData=true" | jq '.data.resultData.error'
-```
+| Task | FFmpeg | Remotion |
+|------|--------|----------|
+| **Stitching** | Same codec, no effects | Transitions, overlays, programmatic |
+| **Transitions** | Simple crossfades | Multiple types, custom timing |
+| **Captions** | SRT burn-in | TikTok-style word highlighting |
+| **Teasers** | Quick clips | Text overlays, branded elements |
+
+### Workflow
+
+1. **Analyze** - Examine videos with ffprobe
+2. **Transcribe** - Get speech content for smart cuts
+3. **Ask** - Clarify user intent
+4. **Plan** - Propose edit approach
+5. **QA Test** - Run automated tests before preview
+6. **Preview** - Show to user after QA passes
+7. **Iterate** - Refine based on feedback
+
+### Key Rules
+
+- **Always preview in Remotion Studio before rendering**
+- Never render automatically - wait for user approval
+- Use whisper.cpp (not Python whisper) for fast transcription
 
 ## Best Practices Summary
 
@@ -293,7 +125,7 @@ curl "${N8N_API_URL}/api/v1/executions/{id}?includeData=true" | jq '.data.result
 3. **Use correct API methods** - PUT for update, POST for activate
 4. **Limit execution queries** - Always `?limit=2`
 5. **Report only after confirmed working** - Never "please test this"
-6. **Explain manual steps when required** - With clear reasoning
+6. **Never use mock data** - Ask for real values
 
 ## MCP Server Integration
 
@@ -302,4 +134,4 @@ If the n8n MCP server is available, prefer using MCP tools for:
 - Validation: `validate_node`, `validate_workflow`
 - Templates: `search_templates`, `get_template`
 
-Fall back to REST API skills when MCP is unavailable or for operations MCP doesn't support.
+Fall back to REST API skills when MCP is unavailable.

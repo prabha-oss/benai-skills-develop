@@ -5,18 +5,18 @@
     "email": "naveedharri@gmail.com"
   },
   "metadata": {
-    "description": "BenAI expert skills for n8n workflow automation"
+    "description": "BenAI expert skills marketplace - n8n automation, video editing, and more"
   },
   "plugins": [
     {
       "name": "benai-skills",
       "source": "./",
-      "description": "Expert skills for n8n workflow automation including API operations, MCP tools, and credential management",
-      "version": "1.0.0",
+      "description": "Expert skills for n8n workflow automation and video editing",
+      "version": "1.1.0",
       "author": {
-        "name": "naveedharri"
+        "name": "BenAI"
       },
-      "keywords": ["n8n", "workflow", "automation", "mcp"]
+      "keywords": ["n8n", "workflow", "automation", "video", "ffmpeg", "remotion"]
     }
   ]
 }

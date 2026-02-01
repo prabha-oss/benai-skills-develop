@@ -1,46 +1,6 @@
----
-name: n8n-expressions
-description: Write and debug n8n expressions. Use when working with {{ }} syntax, accessing $json data, $json.body for webhook payloads, referencing other nodes with $node or $(), using $now for dates, $env for environment variables. Use for expression errors, undefined values, and dynamic field access.
----
-
-# n8n Expressions Skill
+# n8n Expressions Reference
 
 Master n8n's expression language for dynamic data access and transformation.
-
----
-
-## PREREQUISITE: Load n8n-main First
-
-**STOP! Before using this skill, the `n8n-main` skill MUST be loaded first.**
-
-If `n8n-main` has NOT been loaded yet in this conversation:
-1. **Load `n8n-main` skill NOW** using the Skill tool
-2. Wait for it to complete its setup (reading files, checking .env)
-3. Then return to this skill
-
-```
-n8n-main NOT loaded? → LOAD IT FIRST → Then use this skill
-```
-
-**Why:** n8n-main reads critical reference files (pitfalls.md, build-process.md) and verifies .env configuration. Without it, you'll make avoidable mistakes.
-
----
-
-## Before Writing Expressions (MANDATORY)
-
-**Key things to remember:**
-
-1. **Webhook data is under `.body`** - NOT at `$json` root! Use `$json.body.fieldName`
-2. **Code nodes use plain JS** - NO `{{ }}` syntax in Code nodes
-3. **Expressions need `={{ }}`** - The `=` prefix is required in n8n parameter fields
-
-```
-COMMON MISTAKE: {{ $json.name }}     → WRONG (missing = prefix or wrong location)
-CORRECT:        ={{ $json.body.name }} → For webhook body data in parameter fields
-CORRECT:        $input.first().json.body.name → In Code nodes (plain JS)
-```
-
-**Read the sections below for the specific syntax you need.**
 
 ---
 
@@ -356,4 +316,3 @@ return $input.all();
 // Array first item
 {{ $json.items[0] }}
 ```
-

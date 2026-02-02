@@ -51,25 +51,49 @@ N8N_CREDENTIALS_TEMPLATE_URL=https://your-n8n.app.n8n.cloud/workflow/template-id
 benai-skills/
 ├── .claude-plugin/
 │   └── marketplace.json
-├── skills/
+├── plugins/
 │   ├── n8n/
-│   │   ├── SKILL.md
-│   │   └── references/
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   └── skills/n8n/
+│   │       ├── SKILL.md
+│   │       └── references/
 │   └── video/
-│       ├── SKILL.md
-│       └── references/
+│       ├── .claude-plugin/
+│       │   └── plugin.json
+│       └── skills/video/
+│           ├── SKILL.md
+│           └── references/
 ├── CLAUDE.md
 └── README.md
 ```
 
 ## Adding New Plugins
 
-1. Create skill folder: `skills/<name>/SKILL.md`
-2. Add plugin entry to `.claude-plugin/marketplace.json`:
+1. Create plugin directory structure:
+   ```
+   plugins/<name>/
+   ├── .claude-plugin/
+   │   └── plugin.json
+   └── skills/<name>/
+       ├── SKILL.md
+       └── references/
+   ```
+
+2. Create `plugins/<name>/.claude-plugin/plugin.json`:
    ```json
    {
      "name": "<name>",
-     "source": "./skills/<name>",
+     "description": "Your plugin description",
+     "version": "1.0.0"
+   }
+   ```
+
+3. Add plugin entry to `.claude-plugin/marketplace.json`:
+   ```json
+   {
+     "name": "<name>",
+     "source": "./plugins/<name>",
      "description": "..."
    }
    ```

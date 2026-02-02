@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "n8n",
-      "source": "../skills/n8n",
+      "source": "./skills/n8n",
       "description": "Build, test, and deploy n8n workflows via REST API with incremental testing",
       "version": "1.0.0",
       "author": {
@@ -20,7 +20,7 @@
     },
     {
       "name": "video",
-      "source": "../skills/video",
+      "source": "./skills/video",
       "description": "Video editing with FFmpeg and Remotion - stitching, transitions, captions, teasers",
       "version": "1.0.0",
       "author": {

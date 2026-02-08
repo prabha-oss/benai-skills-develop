@@ -18,6 +18,8 @@ Expert automation skills for Claude Code.
 /plugin install seo-optimizing@benai-skills
 /plugin install infographic@benai-skills
 /plugin install case-study@benai-skills
+/plugin install lead-research-assistant@benai-skills
+/plugin install landing-page-kit@benai-skills
 ```
 
 ## Available Plugins
@@ -33,6 +35,8 @@ Expert automation skills for Claude Code.
 | seo-optimizing | `/seo-optimizing` | Data-driven SEO optimization using Google Search Console |
 | infographic | `/infographic` | Professional infographics via Gemini AI image generation |
 | case-study | `/case-study` | Detailed, data-driven case studies from interviews |
+| lead-research-assistant | `/lead-research-assistant` | B2B lead generation — company research, LinkedIn prospecting, ICP scoring |
+| landing-page-kit | `/landing-page-kit` | Custom landing pages through conversational design, copywriting, and deployment |
 
 ---
 
@@ -94,8 +98,10 @@ benai-skills/
 │   ├── excalidraw/
 │   ├── email-sequence/
 │   ├── infographic/
+│   ├── landing-page-kit/
+│   ├── lead-research-assistant/
 │   ├── n8n-prd-generator/
-│   ├── case-study-plugin/
+│   ├── case-study/
 │   └── seo/
 │       ├── programmatic-seo/
 │       ├── seo-audit/

@@ -1,6 +1,5 @@
 ---
 name: landing-page-kit
-version: 2.0.0
 description: |
   Create custom, distinctive landing pages through deep conversation and iterative design.
 

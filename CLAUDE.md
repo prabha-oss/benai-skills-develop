@@ -18,7 +18,7 @@ A marketplace of expert automation plugins for Claude Code. Each plugin can be i
 | infographic | `/infographic` | Professional infographics via Gemini AI image generation |
 | case-study | `/case-study` | Detailed, data-driven case studies from interviews |
 | lead-research-assistant | `/lead-research-assistant` | B2B lead generation — company research, LinkedIn prospecting, ICP scoring |
-| landing-page-kit | `/landing-page-kit` | Custom landing pages through conversational design, copywriting, and deployment |
+| website-launch-kit | `/website-launch-kit` | Custom landing pages through conversational design, copywriting, and deployment |
 
 ## n8n Skill
 

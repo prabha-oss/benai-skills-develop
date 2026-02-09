@@ -1,5 +1,5 @@
 ---
-name: landing-page-kit
+name: website-launch-kit
 description: |
   Create custom, distinctive landing pages through deep conversation and iterative design.
 

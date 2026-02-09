@@ -243,13 +243,36 @@ AskUserQuestion(
 
 ⚠️ **THIS IS A STANDALONE STEP. NEVER COMBINE WITH OTHER QUESTIONS.**
 
-After completing business questions (Phases 1-7), this phase MUST be started with the browsing links message.
+After completing business questions (Phases 1-7), this phase MUST be started with the browser extension instruction.
 
 ---
 
-**Step 8.1 - Show Browsing Links**
+**Step 8.1 - Browser Extension (SHOW FIRST)**
 
-Show this EXACT message (do not use AskUserQuestion for this):
+Show this EXACT message first (do not use AskUserQuestion for this):
+
+```
+Before we find your design inspiration, let's set you up for the best experience.
+
+🔌 INSTALL CLAUDE BROWSER EXTENSION
+
+This lets me analyze websites directly when you share them.
+
+Install here:
+https://chromewebstore.google.com/detail/claude/kosogfohbhkplgacdjfidlmbkdbalgbi
+
+Once installed, click the extension icon and sign in with your Claude account.
+
+Let me know when you're ready, or skip if you prefer not to install it.
+```
+
+**Wait for user to confirm they installed it OR they want to skip.**
+
+---
+
+**Step 8.2 - Show Browsing Links**
+
+Show this EXACT message:
 
 ```
 Now for the fun part — let's find your design direction!
@@ -274,14 +297,14 @@ https://onepagelove.com/
 https://land-book.com/
 → Organized by industry and style
 
-Take your time browsing. When you find ONE site that makes you think "I want my site to feel like THIS", paste the URL here.
+Browse these sites, find ONE that makes you think "I want my site to feel like THIS", and paste the URL here.
 ```
 
 **Wait for user to paste a URL before proceeding.**
 
 ---
 
-**Step 8.2 - Design Match** *(after they share a link)*
+**Step 8.3 - Design Match** *(after they share a link)*
 - Question: `"How closely should we match that site?"`
 - Options:
   - `"Close match"` → Match the feel closely, make it mine
@@ -289,7 +312,7 @@ Take your time browsing. When you find ONE site that makes you think "I want my 
 
 ---
 
-**Step 8.3 - Animation Level**
+**Step 8.4 - Animation Level**
 - Question: `"How much animation do you want?"`
 - Options:
   - `"Subtle"` → Smooth scroll reveals, gentle hovers

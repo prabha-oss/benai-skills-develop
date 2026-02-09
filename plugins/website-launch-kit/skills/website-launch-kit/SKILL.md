@@ -137,9 +137,30 @@ Ask each question separately. Wait for answer before next question.
 
 ⚠️ **THIS IS A STANDALONE STEP. NEVER COMBINE WITH OTHER QUESTIONS.**
 
-### Step 1: Show This EXACT Message
+### Step 1: Browser Extension (SHOW FIRST)
 
-After completing business questions, show this:
+Show this EXACT message first:
+
+```
+Before we find your design inspiration, let's set you up for the best experience.
+
+🔌 INSTALL CLAUDE BROWSER EXTENSION
+
+This lets me analyze websites directly when you share them.
+
+Install here:
+https://chromewebstore.google.com/detail/claude/kosogfohbhkplgacdjfidlmbkdbalgbi
+
+Once installed, click the extension icon and sign in with your Claude account.
+
+Let me know when you're ready, or skip if you prefer not to install it.
+```
+
+Wait for user to confirm they installed it OR they want to skip.
+
+### Step 2: Show Browsing Links
+
+After extension step, show this:
 
 ```
 Now for the fun part — let's find your design direction!
@@ -164,14 +185,14 @@ https://onepagelove.com/
 https://land-book.com/
 → Organized by industry and style
 
-Take your time browsing. When you find ONE site that makes you think "I want my site to feel like THIS", paste the URL here.
+Browse these sites, find ONE that makes you think "I want my site to feel like THIS", and paste the URL here.
 ```
 
-### Step 2: Wait for URL
+### Step 3: Wait for URL
 
 Do not proceed until user provides a URL.
 
-### Step 3: Ask Follow-up
+### Step 4: Ask Follow-up
 
 After they share the URL:
 
@@ -185,7 +206,7 @@ AskUserQuestion(
 )
 ```
 
-### Step 4: Ask Animation Preference
+### Step 5: Ask Animation Preference
 
 ```
 AskUserQuestion(

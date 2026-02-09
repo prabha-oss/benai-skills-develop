@@ -1,143 +1,204 @@
-# Browser Automation for Research
+# Website Design Extraction Skill
 
-When WebFetch is blocked by a site, use `agent-browser` CLI to analyze inspiration websites.
-
-**Source:** [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser)
+When WebFetch is blocked, use the built-in browser tools to analyze inspiration websites.
 
 ---
 
-## When to Use
+## When to Use This
 
-- WebFetch returns "blocked" or fails to fetch content
-- Need to interact with dynamic content (SPAs, JavaScript-heavy sites)
-- Need screenshots of inspiration sites
-- Need to extract design elements from protected pages
-
----
-
-## Core Workflow
-
-```bash
-# 1. Navigate
-agent-browser open <url>
-
-# 2. Snapshot (get element refs like @e1, @e2)
-agent-browser snapshot -i
-
-# 3. Interact (if needed)
-agent-browser click @e1
-agent-browser scroll down 500
-
-# 4. Re-snapshot (after page changes)
-agent-browser snapshot -i
-
-# 5. Capture
-agent-browser screenshot
-```
+- WebFetch returns "blocked" or fails
+- Site requires JavaScript to render
+- Need visual screenshots for design analysis
+- Analyzing dynamic/interactive elements
 
 ---
 
-## Essential Commands
+## Method 1: Browser Subagent (Recommended)
 
-```bash
-# Navigation
-agent-browser open <url>              # Navigate to URL
-agent-browser close                   # Close browser
+Use `browser_subagent` to navigate and capture the site:
 
-# Snapshot
-agent-browser snapshot -i             # Interactive elements with refs
-agent-browser snapshot -i -C          # Include cursor-interactive elements
+### Step 1: Navigate and Screenshot
 
-# Get Information
-agent-browser get text @e1            # Get element text
-agent-browser get text body > page.txt  # Get all page text
-agent-browser get url                 # Get current URL
-agent-browser get title               # Get page title
-
-# Wait
-agent-browser wait --load networkidle # Wait for network idle
-agent-browser wait 2000               # Wait milliseconds
-
-# Capture
-agent-browser screenshot              # Screenshot to temp dir
-agent-browser screenshot --full       # Full page screenshot
-agent-browser pdf output.pdf          # Save as PDF
+```
+browser_subagent(
+  Task: "Navigate to [URL]. Take a full-page screenshot. 
+         Scroll down the entire page and take screenshots of each section.
+         Extract: colors, typography, layout, spacing, animations, overall vibe.",
+  RecordingName: "site_analysis"
+)
 ```
 
----
+### Step 2: Analyze Screenshots
 
-## Extracting Design Elements
+After the subagent returns, view the screenshots to extract:
 
-### Get Page Colors and Styles
+| Element | What to Look For |
+|---------|------------------|
+| Colors | Primary (buttons, links), Secondary (cards), Background |
+| Typography | Heading fonts, body fonts, sizes, weights |
+| Layout | Centered, full-width, asymmetric, grid |
+| Spacing | Tight (16-24px), Normal (32-48px), Generous (64-96px+) |
+| Hero | Text-focused, image-focused, split, video |
+| Animations | None, subtle fades, dramatic entrances |
 
-```bash
-agent-browser open <inspiration-url>
-agent-browser snapshot -i
+### Step 3: Report Findings
 
-# Screenshot for visual reference
-agent-browser screenshot --full inspiration.png
+Present extracted design elements to user:
+
 ```
+DESIGN EXTRACTION: [URL]
 
-### Extract Text Content
+COLORS:
+- Primary: [color] - used for [buttons/links/etc]
+- Secondary: [color] - used for [cards/backgrounds]
+- Background: [color]
+- Text: [color]
 
-```bash
-agent-browser get text body > content.txt
-```
+TYPOGRAPHY:
+- Headings: [description]
+- Body: [description]
+- Style: [modern/classic/playful]
 
-### Analyze Specific Sections
+LAYOUT:
+- Structure: [centered/full-width/asymmetric]
+- Spacing: [tight/normal/generous]
 
-```bash
-agent-browser snapshot -s "#hero"     # Scope to hero section
-agent-browser screenshot hero.png     # Screenshot that section
+HERO:
+- Style: [text-heavy/image-focused/split]
+- Animation: [none/subtle/dramatic]
+
+VIBE: [3 words]
 ```
 
 ---
 
-## Ref Lifecycle (Important)
+## Method 2: Direct Browser Navigation
 
-Refs (`@e1`, `@e2`) are **invalidated when the page changes**. Always re-snapshot after:
+For more control, use step-by-step browser commands:
 
-- Clicking links or buttons that navigate
-- Scrolling that loads new content
-- Any dynamic content loading
+### Open and Capture
 
-```bash
-agent-browser click @e5               # Navigates to new page
-agent-browser snapshot -i             # MUST re-snapshot
-agent-browser click @e1               # Use new refs
+```
+browser_subagent(
+  Task: "1. Navigate to [URL]
+         2. Wait for page to fully load
+         3. Take screenshot of above-the-fold content
+         4. Scroll to bottom of page slowly, taking screenshots every viewport
+         5. Return paths to all screenshots",
+  RecordingName: "design_capture"
+)
+```
+
+### Extract Specific Sections
+
+```
+browser_subagent(
+  Task: "Navigate to [URL]. 
+         Find and screenshot these sections:
+         - Hero section
+         - Features/Services section
+         - Testimonials section
+         - Pricing section (if exists)
+         - Footer
+         For each, note the design patterns used.",
+  RecordingName: "section_analysis"
+)
 ```
 
 ---
 
-## Visual Browser (Debugging)
+## Design Extraction Checklist
 
-```bash
-agent-browser --headed open <url>     # Open visible browser
-agent-browser highlight @e1           # Highlight element
-```
+### Colors to Extract
+
+| Element | Where to Look |
+|---------|---------------|
+| Primary | Buttons, links, key CTAs |
+| Secondary | Cards, section backgrounds |
+| Accent | Highlights, hover states, badges |
+| Text | Headings, body, muted text |
+| Background | Page bg, section alternates |
+
+### Typography to Note
+
+| Element | Details to Capture |
+|---------|-------------------|
+| H1 | Size, weight, letter-spacing |
+| H2-H3 | Size ratio to H1 |
+| Body | Size, line-height, font family |
+| Labels | Uppercase? Size? Weight? |
+
+### Spacing Patterns
+
+| Pattern | Typical Values |
+|---------|---------------|
+| Tight | 16-24px between elements |
+| Normal | 32-48px between elements |
+| Generous | 64-96px+ between sections |
+
+### Layout Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| Centered | Max-width container, centered content |
+| Full-width | Edge-to-edge sections |
+| Asymmetric | Off-center, overlapping elements |
+| Grid-breaking | Elements crossing column lines |
 
 ---
 
-## Use in Research Phase
+## Example: Complete Extraction Flow
 
-When analyzing user's inspiration site:
+### 1. User Shares Inspiration URL
 
-1. If WebFetch fails → Use `agent-browser open <url>`
-2. Take full page screenshot → `agent-browser screenshot --full`
-3. Extract visible text → `agent-browser get text body`
-4. Analyze the screenshot visually
-5. Report findings to user
+```
+User: "I like the vibe of https://example.com"
+```
+
+### 2. Try WebFetch First
+
+If blocked, proceed to browser method.
+
+### 3. Use Browser Subagent
+
+```
+browser_subagent(
+  Task: "Navigate to https://example.com. 
+         Take full-page screenshot.
+         Analyze and document:
+         - Color palette (primary, secondary, accent, background)
+         - Typography (heading and body fonts, sizes)
+         - Layout approach
+         - Spacing (tight, normal, generous)
+         - Hero section style
+         - Animation level
+         Return a design analysis summary.",
+  RecordingName: "example_analysis"
+)
+```
+
+### 4. View Screenshots and Analyze
+
+Look at the captured screenshots to extract design elements visually.
+
+### 5. Report to User
+
+Present findings in structured format and ask for confirmation.
 
 ---
 
-## Installation
+## Key Tips
 
-```bash
-npm install -g @anthropics/agent-browser
-```
+1. **Always scroll** - Many design patterns are below the fold
+2. **Screenshot each section** - Hero, features, testimonials, CTA, footer
+3. **Note hover states** - Check button/link interactions if possible
+4. **Check mobile** - Ask subagent to resize viewport if needed
+5. **Extract exact colors** - Use browser dev tools if available
 
-Or use via npx:
+---
 
-```bash
-npx @anthropics/agent-browser open <url>
-```
+## When NOT to Use This
+
+- Site is behind login (use saved auth state instead)
+- Site has CAPTCHA (ask user to provide screenshots)
+- Site is rate-limiting (wait and retry)

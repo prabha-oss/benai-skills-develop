@@ -21,6 +21,14 @@ Analyze this website for design extraction:
 - Overall vibe in 3 words
 ```
 
+**If WebFetch fails (site blocked):** Use `agent-browser` CLI instead. See `14-browser-automation.md` for commands.
+
+```bash
+agent-browser open <url>
+agent-browser screenshot --full inspiration.png
+agent-browser get text body > content.txt
+```
+
 ### Step 2: Report Back
 
 Present findings to the user:

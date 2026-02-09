@@ -239,48 +239,61 @@ AskUserQuestion(
 
 ---
 
-### PHASE 8: Design Direction
+### PHASE 8: Design Direction (SEPARATE MANDATORY STEP)
+
+⚠️ **THIS IS A STANDALONE STEP. NEVER COMBINE WITH OTHER QUESTIONS.**
+
+After completing business questions (Phases 1-7), this phase MUST be started with the browsing links message.
 
 ---
 
-**Q8.1 - Inspiration**
-- Question: `"Do you have a website that captures the vibe you want?"`
-- Options:
-  - `"Yes, I have one"` → Paste the link
-  - `"I need to browse"` → Check framer.com/marketplace or awwwards.com
-  - `"No preference"` → I'll suggest based on your business
+**Step 8.1 - Show Browsing Links**
+
+Show this EXACT message (do not use AskUserQuestion for this):
+
+```
+Now for the fun part — let's find your design direction!
+
+I need ONE website that captures the vibe you want for your landing page.
+
+Here's where to browse:
+
+🎨 FRAMER TEMPLATES
+https://www.framer.com/marketplace/templates/
+→ Modern, animated, high-converting designs
+
+🏆 AWWWARDS
+https://www.awwwards.com/
+→ Award-winning web design from top agencies
+
+📄 ONE PAGE LOVE
+https://onepagelove.com/
+→ Curated single-page website inspiration
+
+💼 LAND-BOOK
+https://land-book.com/
+→ Organized by industry and style
+
+Take your time browsing. When you find ONE site that makes you think "I want my site to feel like THIS", paste the URL here.
+```
+
+**Wait for user to paste a URL before proceeding.**
 
 ---
 
-**Q8.2 - Design Match** *(after they share a link)*
+**Step 8.2 - Design Match** *(after they share a link)*
 - Question: `"How closely should we match that site?"`
 - Options:
-  - `"Use it as a close reference"` → Match the feel closely
-  - `"Just take inspiration"` → Use general direction only
+  - `"Close match"` → Match the feel closely, make it mine
+  - `"Just inspiration"` → Use general direction, be more unique
 
 ---
 
-**Q8.3 - Design Feel** *(for Services)*
-- Question: `"Should the design feel premium or approachable?"`
-- Options:
-  - `"Premium and exclusive"` → Dark theme, elegant, refined
-  - `"Approachable and trustworthy"` → Clean, bright, warm
-
----
-
-**Q8.4 - Design Feel** *(for Products)*
-- Question: `"Should the design feel cutting-edge or simple?"`
-- Options:
-  - `"Modern and cutting-edge"` → Bold animations, gradients
-  - `"Simple and focused"` → Minimal, let product speak
-
----
-
-**Q8.5 - Animation Level**
+**Step 8.3 - Animation Level**
 - Question: `"How much animation do you want?"`
 - Options:
-  - `"Keep it subtle"` → Smooth scroll reveals, gentle hovers
-  - `"Make it dynamic"` → Bold entrances, interactive elements
+  - `"Subtle"` → Smooth scroll reveals, gentle hovers
+  - `"Dynamic"` → Bold entrances, interactive elements
 
 ---
 

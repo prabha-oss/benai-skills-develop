@@ -23,8 +23,8 @@ When using the Cowork question widget, these are the technical constraints:
 
 ## Core Principles
 
-1. **One question at a time** - Never overwhelm with multiple questions
-2. **Branch from answers** - Every answer spawns follow-up questions for more context
+1. **ONE question per message** - Never combine questions. Each message = 1 question only.
+2. **Branch from answers** - Every answer can spawn follow-up questions for more context
 3. **More questions = more context** - Don't rush. Go deep.
 4. **Their words = their copy** - Extract exact language for the landing page
 5. **Design questions from context** - No generic "pick a vibe" - base on their business
@@ -42,55 +42,60 @@ When using the Cowork question widget, these are the technical constraints:
 
 **Question (Widget - 2 options required):**
 ```
-Let's start with the basics. What type of business is this?
+What type of business is this?
 
 Option 1: "I'm selling a service"
    → Consulting, agency, freelance, coaching, done-for-you
 
 Option 2: "I'm selling a product"
    → SaaS, digital product, physical product, course
-
-[Something else field for edge cases]
 ```
-
-**Why this matters:** Determines page structure, messaging approach, and which sections to include.
 
 ---
 
 #### Q1.2 - Business Name
 
-**Question (Plain text chat - NOT widget):**
+**Question (Plain text chat - single question):**
 ```
-What's the name of your business or service?
-
-Just type it below. If you don't have a name yet, I can help you brainstorm one.
+What's the name of your business?
 ```
 
-**If they don't have a name:**
+**If they don't have one, follow up:**
 ```
-No problem! Tell me briefly what you do and who you help.
-I'll suggest 3 name options based on that.
+No problem! What do you do in one sentence?
+```
+
+**Then:**
+```
+Based on that, here are 3 name options:
+1. [Option A]
+2. [Option B]
+3. [Option C]
+
+Which feels right?
 ```
 
 ---
 
 #### Q1.3 - What You Offer
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Now describe what you actually offer.
-
-Be specific - list the main things your customer gets. For example:
-- "A 6-week coaching program with weekly calls and a private community"
-- "Custom website design, copywriting, and 30 days of revisions"
-- "An AI tool that writes email sequences automatically"
-
-What do they actually walk away with?
+What's the main thing your customers get from you?
 ```
 
-**Branch if vague:**
+**If vague, follow up:**
 ```
-Let me dig deeper. Can you walk me through what a typical project or engagement looks like from start to finish?
+Can you give me a specific example of what a customer walks away with?
+```
+
+---
+
+#### Q1.4 - Deliverables
+
+**Question (Plain text chat - single question):**
+```
+List the specific deliverables or features included.
 ```
 
 ---
@@ -101,43 +106,50 @@ Let me dig deeper. Can you walk me through what a typical project or engagement 
 
 #### Q2.1 - Who Is It For
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
 Who is your ideal customer?
-
-Tell me about them:
-- What's their job title or role?
-- What industry are they in?
-- What size is their company (solo, small team, enterprise)?
-
-The more specific, the better. "Marketing managers at B2B SaaS companies with 10-50 employees" is much better than "business owners."
 ```
 
-**Branch from their answer:**
+**Follow-up if vague:**
 ```
-Got it - [repeat their audience back].
+What's their job title or role?
+```
 
-What's the biggest frustration they deal with on a daily basis? What keeps them up at night?
+**Then:**
+```
+What industry are they in?
+```
+
+**Then:**
+```
+What size is their company?
 ```
 
 ---
 
-#### Q2.2 - Who Is NOT For
+#### Q2.2 - Their Frustration
+
+**Question (Plain text chat - single question):**
+```
+What's the biggest frustration they deal with daily?
+```
+
+---
+
+#### Q2.3 - Who Is NOT For
 
 **Question (Widget - 2 options):**
 ```
-Every business has bad-fit customers. Do you have a clear picture of who you'd turn away?
+Do you know who you'd turn away?
 
 Option 1: "Yes, I know who's not a fit"
-   → I'll ask you to describe them
-
-Option 2: "Not really, I work with anyone"
-   → I'll help you define this based on your answers
+Option 2: "Not really"
 ```
 
-**If they select Option 1, follow up:**
+**If Option 1, follow up:**
 ```
-Describe your worst-fit customer. The type of person or company you'd politely decline. What makes them a bad fit?
+Describe your worst-fit customer.
 ```
 
 ---
@@ -148,40 +160,50 @@ Describe your worst-fit customer. The type of person or company you'd politely d
 
 #### Q3.1 - Trigger Moment
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Think about your best customers. What was the specific moment that made them start looking for a solution like yours?
+What moment makes your customers start looking for a solution like yours?
+```
 
-What happened right before they searched? Examples:
-- "They just lost a big deal because their proposal looked unprofessional"
-- "They got feedback from their boss that their marketing isn't working"
-- "They hired their 5th employee and realized they can't manage everything manually"
-
-What's that trigger moment for your customers?
+**Provide example only if they're stuck:**
+```
+For example: "They just lost a deal because their proposal looked unprofessional"
 ```
 
 ---
 
-#### Q3.2 - Top 3 Problems
+#### Q3.2 - Problem #1
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Now list the TOP 3 specific problems your customers want solved.
-
-Not vague things like "save time" - the actual, practical problems. Examples:
-- "I'm sending 100 cold emails a day manually and it's eating my entire morning"
-- "My website looks dated and I'm embarrassed to share it with prospects"
-- "I have no idea which marketing channels are actually working"
-
-What are their top 3?
+What's the #1 specific problem they want solved?
 ```
 
-**Branch for each problem:**
+---
+
+#### Q3.3 - Problem #1 Impact
+
+**Question (Plain text chat - single question):**
 ```
-For problem #1 ("[their problem]"):
-- How is this affecting them financially?
-- How much time are they losing to this?
-- What's the emotional toll - frustration, stress, embarrassment?
+How does that problem affect them? (Time, money, stress?)
+```
+
+---
+
+#### Q3.4 - Problem #2
+
+**Question (Plain text chat - single question):**
+```
+What's another big problem they face?
+```
+
+---
+
+#### Q3.5 - Problem #3
+
+**Question (Plain text chat - single question):**
+```
+One more problem they deal with?
 ```
 
 ---
@@ -192,58 +214,44 @@ For problem #1 ("[their problem]"):
 
 #### Q4.1 - The Outcome
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-When someone works with you (or uses your product), what's the end result?
-
-Paint the picture. What does their life or business look like after? Be specific:
-- "They have a fully automated sales pipeline generating 30+ qualified leads per month"
-- "They launch their new brand website in 2 weeks and start getting compliments from prospects"
-
-What's the transformation?
+What does their life or business look like after working with you?
 ```
 
 ---
 
 #### Q4.2 - Timeline
 
-**Question (Widget - 2-4 options based on context):**
+**Question (Widget - 4 options):**
 ```
-How quickly can customers expect to see results?
+How quickly can they expect results?
 
 Option 1: "Within days"
-Option 2: "Within 2-4 weeks"  
+Option 2: "Within 2-4 weeks"
 Option 3: "Within 1-3 months"
-Option 4: "It varies significantly"
-
-[Something else for custom timelines]
+Option 4: "It varies"
 ```
 
 ---
 
-#### Q4.3 - Your Process
+#### Q4.3 - Process Exists?
 
 **Question (Widget - 2 options):**
 ```
-Do you have a defined process or methodology for how you work?
+Do you have a defined process for how you work?
 
 Option 1: "Yes, I have clear steps"
-   → I'll ask you to list them
-
 Option 2: "Not formally defined"
-   → I'll skip this section or help you create one
 ```
 
-**If they have steps, follow up:**
-```
-Great! List your process in 3-5 steps. Keep each step to a short title. Example:
-1. Discovery
-2. Strategy
-3. Design
-4. Build
-5. Launch
+---
 
-What are your steps?
+#### Q4.4 - Process Steps
+
+**If yes to Q4.3 (Plain text chat - single question):**
+```
+List your process in 3-5 short steps.
 ```
 
 ---
@@ -254,32 +262,36 @@ What are your steps?
 
 #### Q5.1 - Failed Alternatives
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Before finding you, what have your customers typically tried that didn't work?
-
-Think about:
-- Competitors they used
-- DIY approaches they attempted
-- Other solutions they explored
-
-What failed for them before you?
+What have your customers tried before that didn't work?
 ```
 
 ---
 
-#### Q5.2 - Your Differentiator
+#### Q5.2 - Differentiator #1
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Based on what you've told me, why should someone choose YOU over alternatives?
+What's the #1 reason someone should choose you?
+```
 
-Give me your top 3 reasons. Think about:
-- What do you do differently?
-- What guarantees or commitments do you offer?
-- What unique experience or approach do you bring?
+---
 
-What makes you the obvious choice?
+#### Q5.3 - Differentiator #2
+
+**Question (Plain text chat - single question):**
+```
+What's another reason?
+```
+
+---
+
+#### Q5.4 - Differentiator #3
+
+**Question (Plain text chat - single question):**
+```
+One more reason?
 ```
 
 ---
@@ -288,38 +300,38 @@ What makes you the obvious choice?
 
 ---
 
-#### Q6.1 - What Proof Do You Have
+#### Q6.1 - Proof Type
 
 **Question (Widget - 3 options):**
 ```
-What kind of proof do you have that this works?
+What kind of proof do you have?
 
-Option 1: "I have testimonials or reviews"
-   → I'll ask you to share your best 2-3
-
-Option 2: "I have results with specific numbers"
-   → I'll ask for the stats
-
-Option 3: "I have client logos or case studies"
-   → I'll ask which names I can feature
+Option 1: "Testimonials or reviews"
+Option 2: "Results with specific numbers"
+Option 3: "Client logos or case studies"
 ```
 
-**Branch based on selection:**
+---
 
-If testimonials:
+#### Q6.2 - Testimonials
+
+**If Option 1 (Plain text chat - single question):**
 ```
-Share your 2-3 best testimonials. Copy and paste them exactly as written.
-Include the person's name and title if you have it.
+Share your best testimonial. Copy and paste it exactly.
 ```
 
-If numbers:
+**Then:**
 ```
-What specific results can you claim? Examples:
-- "47 leads generated in 60 days"
-- "3x increase in conversion rate"
-- "$150K in new revenue"
+Got another good one?
+```
 
-What are your numbers?
+---
+
+#### Q6.3 - Numbers
+
+**If Option 2 (Plain text chat - single question):**
+```
+What specific result can you claim with numbers?
 ```
 
 ---
@@ -328,135 +340,121 @@ What are your numbers?
 
 ---
 
-#### Q7.1 - Top Objections
+#### Q7.1 - Top Objection
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-What are the top 2-3 reasons people hesitate to buy from you?
-
-Common objections include:
-- "It's too expensive"
-- "I've been burned before"
-- "I don't have time for this right now"
-- "I can do this myself"
-
-What do you hear most often?
-```
-
-**Branch for each objection:**
-```
-How do you usually respond when someone says "[their objection]"? 
-What puts their mind at ease?
+What's the #1 reason people hesitate to buy from you?
 ```
 
 ---
 
-#### Q7.2 - What's Included vs Not
+#### Q7.2 - How You Handle It
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-Let's clarify scope. What's explicitly INCLUDED in your offering?
+How do you usually respond to that?
+```
 
-And equally important - what's NOT included? 
-This helps set expectations and reduces friction later.
+---
+
+#### Q7.3 - Other Objections
+
+**Question (Plain text chat - single question):**
+```
+Any other common concerns they have?
+```
+
+---
+
+#### Q7.4 - What's Included
+
+**Question (Plain text chat - single question):**
+```
+What's explicitly included in your offering?
+```
+
+---
+
+#### Q7.5 - What's NOT Included
+
+**Question (Plain text chat - single question):**
+```
+What's NOT included?
 ```
 
 ---
 
 ### PHASE 8: Design Direction
 
-**Important:** Design questions should be derived from their business context, not generic "pick a vibe" questions. Maximum 5 design questions.
+**Maximum 5 design questions. Base them on their business context.**
 
 ---
 
 #### Q8.1 - Inspiration Website
 
-**Question (Plain text chat with helpful links):**
+**Question (Plain text chat - single question):**
 ```
-I need ONE website that captures the vibe you want for your landing page.
+Find ONE website that captures the vibe you want.
 
-Browse these for inspiration:
-• [Framer Templates](https://www.framer.com/marketplace/templates/) - Modern, animated templates
-• [Awwwards](https://www.awwwards.com/) - Award-winning web design
+Browse here for ideas:
+• https://www.framer.com/marketplace/templates/
+• https://www.awwwards.com/
 
-**How to share:**
-1. Browse the sites above
-2. Find ONE that makes you think "I want my site to feel like THIS"
-3. Copy the URL from your browser's address bar
-4. Paste it here
-
-What's your inspiration link?
-```
-
-**After they share:**
-```
-I'll analyze [their URL] and extract the design direction.
-
-[Analyze and report: colors, typography, layout, animations, vibe]
-
-What specifically do you like about this site? 
-- Is it the colors?
-- The typography style?
-- The layout/structure?
-- The animations?
-
-Tell me what drew you to it.
+Paste the link when you find one.
 ```
 
 ---
 
-#### Q8.2 - Match or Inspire (Context-Based)
+#### Q8.2 - What They Like
+
+**After they share (Plain text chat - single question):**
+```
+What specifically drew you to that site?
+```
+
+---
+
+#### Q8.3 - Match or Inspire
 
 **Question (Widget - 2 options):**
 ```
-Based on [their chosen site], how closely should we match it?
+How closely should we match it?
 
 Option 1: "Use it as a close reference"
-   → I'll match the feel closely while making it yours
-
-Option 2: "Just take inspiration from it"
-   → I'll use the general direction but make it more unique
+Option 2: "Just take inspiration"
 ```
 
 ---
 
-#### Q8.3 - Dynamic Design Question (Based on Business Type)
+#### Q8.4 - Design Feel (Dynamic - based on business type)
 
 **For SERVICE businesses:**
 ```
-Your service is about [their offering]. Should the design feel:
+Should the design feel premium and exclusive, or approachable and trustworthy?
 
 Option 1: "Premium and exclusive"
-   → Dark theme, elegant typography, refined details
-
 Option 2: "Approachable and trustworthy"
-   → Clean, bright, professional with warmth
 ```
 
 **For PRODUCT businesses:**
 ```
-Your product helps [their outcome]. Should the design feel:
+Should the design feel modern and cutting-edge, or simple and focused?
 
 Option 1: "Modern and cutting-edge"
-   → Bold animations, gradient accents, tech-forward
-
 Option 2: "Simple and focused"
-   → Minimal, clean, let the product speak
 ```
 
 ---
 
-#### Q8.4 - Animation Level
+#### Q8.5 - Animation Level
 
 **Question (Widget - 2 options):**
 ```
-How much motion and animation do you want?
+How much animation do you want?
 
 Option 1: "Keep it subtle"
-   → Smooth scroll reveals, gentle hover effects
-
 Option 2: "Make it dynamic"
-   → Bold entrance animations, interactive elements
 ```
 
 ---
@@ -469,31 +467,30 @@ Option 2: "Make it dynamic"
 
 **Question (Widget - 4 options):**
 ```
-What's the ONE action you want visitors to take on this page?
+What's the ONE action visitors should take?
 
-Option 1: "Book a call or meeting"
-Option 2: "Sign up or create an account"
-Option 3: "Buy or purchase directly"
-Option 4: "Request a quote or proposal"
+Option 1: "Book a call"
+Option 2: "Sign up"
+Option 3: "Buy directly"
+Option 4: "Request a quote"
 ```
 
 ---
 
-#### Q9.2 - Form Requirements
+#### Q9.2 - Form Fields
 
-**Question (Plain text chat):**
+**Question (Plain text chat - single question):**
 ```
-For the contact form, what information do you need to collect?
+What info do you need to collect? (Name, email, phone, company, etc.)
+```
 
-At minimum: Name and email.
+---
 
-Do you also need:
-- Company name?
-- Phone number?
-- A qualifying question (like "What's your budget?")?
-- Where should form submissions go? (Email, CRM, Calendly link?)
+#### Q9.3 - Form Destination
 
-Tell me what you need.
+**Question (Plain text chat - single question):**
+```
+Where should form submissions go?
 ```
 
 ---
@@ -515,64 +512,64 @@ Here's everything I've gathered:
 - Bad fit: [who to avoid]
 
 **PROBLEM**
-- Trigger moment: [what makes them search]
-- Top problems:
-  1. [problem 1]
-  2. [problem 2]
-  3. [problem 3]
+- Trigger: [moment]
+- Problems: [1, 2, 3]
 
 **SOLUTION**
 - Outcome: [transformation]
 - Timeline: [how fast]
 - Process: [steps]
 
-**DIFFERENTIATION**
+**WHY YOU**
 - Failed alternatives: [what didn't work]
-- Why you: [top 3 reasons]
+- Differentiators: [1, 2, 3]
 
 **PROOF**
-- [testimonials/stats/logos summary]
+- [summary]
 
 **OBJECTIONS**
-- [top concerns + how to handle]
+- [concerns + responses]
 
 **DESIGN**
-- Inspiration: [their URL]
-- Direction: [extracted from analysis]
+- Inspiration: [URL]
+- Feel: [premium/approachable/modern/simple]
 - Animation: [subtle/dynamic]
 
 **CTA**
 - Action: [book/signup/buy/quote]
-- Form fields: [requirements]
+- Form: [fields]
 
 ---
 
-Anything to add or correct before I move to the next phase?
+Anything to add or correct?
 ```
 
 ---
 
-## Branching Decision Tree
+## Key Rule Reminder
 
+**NEVER ask multiple questions in one message.**
+
+❌ Wrong:
 ```
-Q1 (Business Type)
-├── SERVICE → Ask about deliverables, process, timeline
-│   └── Branch: "Walk me through a typical engagement"
-└── PRODUCT → Ask about features, use cases, results
-    └── Branch: "What problem does this solve?"
-
-Q2 (Audience)
-├── Clear answer → Branch: "What frustrates them daily?"
-└── Vague answer → Branch: "Give me a specific example of your best customer"
-
-Q3 (Problems)
-├── For each problem → Branch: "How does this affect them financially/emotionally?"
-
-Q6 (Proof)
-├── Has testimonials → "Share your 2-3 best, copy-paste exactly"
-├── Has numbers → "What specific results can you claim?"
-└── Has logos → "Which names can I feature?"
-
-Q7 (Objections)
-├── For each objection → "How do you respond to this?"
+What's the name of your business, and what service do you provide? 
+Give me the full picture: who do you help, what do you actually do for them, 
+and what do they walk away with?
 ```
+
+✅ Right:
+```
+What's the name of your business?
+```
+
+Then after they answer:
+```
+What's the main thing your customers get from you?
+```
+
+Then after they answer:
+```
+Who is your ideal customer?
+```
+
+**One question. Wait for answer. Then next question.**

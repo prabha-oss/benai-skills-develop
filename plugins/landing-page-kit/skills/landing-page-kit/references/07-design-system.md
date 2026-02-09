@@ -374,6 +374,42 @@ Subtle but noticeable:
 
 ---
 
+## Visual Assets by Business Type
+
+Choose the right assets based on business context. See `12-visual-assets.md` for full guide.
+
+### Service Businesses (Agency, Consulting, Coaching)
+
+| Section | Asset |
+|---------|-------|
+| Hero | Text-focused, no image needed |
+| Problem | Icons (lucide-react) |
+| Solution | Icons |
+| Process | Numbered steps with icons |
+| Social Proof | Client logos (request) or none |
+| CTA | No visual |
+
+**Icon style:** Outlined (lucide), consistent 24-32px size
+
+### Product/SaaS Businesses
+
+| Section | Asset |
+|---------|-------|
+| Hero | Product mockup (AI-generated) |
+| Features | Product screenshots + icons |
+| Problem/Solution | Icons or illustrations |
+| Social Proof | User avatars (request) |
+
+**Image generation:** Use for mockups, UI screenshots, abstract visuals
+
+### Never Generate
+
+- Human faces (request from client)
+- Client logos
+- Copyrighted content
+
+---
+
 ## Design Checklist
 
 Before development, confirm:
@@ -385,3 +421,5 @@ Before development, confirm:
 - [ ] Motion: Animation level (none/subtle/dramatic)
 - [ ] Details: Shadows, borders, radius defined
 - [ ] Responsive: Mobile adaptations planned
+- [ ] Visual assets: Icons identified, images generated
+

@@ -2,6 +2,40 @@
 
 React + Tailwind component patterns. Use shadcn/ui for structure, then customize styling.
 
+---
+
+## Icon Usage
+
+All icons use **Lucide React** (default). Install:
+
+```bash
+npm install lucide-react
+```
+
+Import icons as needed:
+
+```typescript
+import { 
+  ArrowRight, 
+  Check, 
+  Clock, 
+  Shield, 
+  Zap, 
+  TrendingUp,
+  AlertTriangle 
+} from 'lucide-react';
+
+// Usage in JSX
+<Clock className="w-6 h-6" />
+<Shield className="w-8 h-8 text-primary" />
+```
+
+**Finding icons:** Use `npx better-icons search [query] --prefix lucide` to search.
+
+See `12-visual-assets.md` for the full visual assets guide.
+
+---
+
 ## Base Component Pattern
 
 Every component follows this structure:

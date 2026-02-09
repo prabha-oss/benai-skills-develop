@@ -25,9 +25,25 @@ Deep conversation framework to understand the user's business and landing page r
 This determines page structure and messaging approach.
 
 **Q1 - Name**
+
+**UI Pattern:** Direct input with AI fallback (no unnecessary clicks)
+
 ```
-"What's the name of your product/service?"
+┌─────────────────────────────────────────────────────────────┐
+│  What's the name of your service or business?               │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  Enter your business name here                       │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+│  [ ✨ Generate with AI ]                                     │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**Behavior:**
+- If user has a name → Type directly, press Enter or proceed
+- If user needs help → Click "Generate with AI" which asks context questions and suggests names
 
 **Q2 - What You Offer**
 ```

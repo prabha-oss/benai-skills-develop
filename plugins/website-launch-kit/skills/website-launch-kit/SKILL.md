@@ -103,31 +103,275 @@ This isn't a template — we'll build something custom based on your business.
 Let's start with one question at a time.
 ```
 
-### Question Flow (ONE AT A TIME)
+### Question Flow (ONE AT A TIME — use AskUserQuestion for EVERY question)
 
-Ask each question separately. Wait for answer before next question.
+Ask each question using `AskUserQuestion()`. Wait for answer before next question.
 
-| # | Question | Options |
-|---|----------|---------|
-| 1 | Is this for a product or service? | Product / Service |
-| 2 | What type specifically? | Consulting / Agency / Coaching / Freelance |
-| 3 | What's the name of your business? | [text input] |
-| 4 | What do customers get from you? | [text input] |
-| 5 | Who is your ideal customer? | [text input] |
-| 6 | What's their role? | Founder / Manager / Individual / Other |
-| 7 | Company size? | Solo / Small / Growing / Large |
-| 8 | What makes them start looking? | [text input] |
-| 9 | Problem #1 to solve? | [text input] |
-| 10 | Problem #2? | [text input] |
-| 11 | Problem #3? | [text input] |
-| 12 | What does success look like? | [text input] |
-| 13 | How fast do they see results? | Days / 2-4 weeks / 1-3 months / Varies |
-| 14 | Do you have a process? | Yes / No |
-| 15 | Why should they choose you? | [text input] |
-| 16 | What proof do you have? | Testimonials / Numbers / Logos / None |
-| 17 | Why do people hesitate? | [text input] |
-| 18 | What action should visitors take? | Book call / Sign up / Buy / Quote |
-| 19 | What form fields do you need? | [text input] |
+**Read `references/01-intake-questions.md` for the full question bank with branching logic.**
+
+#### Q1: Business Type
+
+```
+AskUserQuestion(
+  question: "Is this for a product or a service?",
+  options: [
+    { label: "Product", description: "SaaS, app, digital or physical product" },
+    { label: "Service", description: "Agency, consulting, freelance, coaching" }
+  ]
+)
+```
+
+#### Q2: Specific Type (branch based on Q1)
+
+If Service:
+```
+AskUserQuestion(
+  question: "What type of service do you provide?",
+  options: [
+    { label: "Consulting", description: "Strategy and expert advice" },
+    { label: "Agency / Done-for-you", description: "You deliver finished work" },
+    { label: "Coaching / Training", description: "You teach or guide people" },
+    { label: "Freelance / Creative", description: "Design, writing, dev, etc." }
+  ]
+)
+```
+
+If Product:
+```
+AskUserQuestion(
+  question: "What type of product is this?",
+  options: [
+    { label: "SaaS / Software", description: "Online tool or app" },
+    { label: "Digital Product", description: "Course, template, ebook" },
+    { label: "Physical Product", description: "Tangible item you ship" },
+    { label: "Membership / Community", description: "Recurring access" }
+  ]
+)
+```
+
+#### Q3: Business Name
+
+```
+AskUserQuestion(
+  question: "What's the name of your business?",
+  options: [
+    { label: "I have a name", description: "Type it in the text field" },
+    { label: "I need help naming it", description: "I'll suggest options later" }
+  ]
+)
+```
+
+#### Q4: Main Offering
+
+```
+AskUserQuestion(
+  question: "What's the main thing your customers get from you?",
+  options: [
+    { label: "I'll describe it", description: "Type your answer" },
+    { label: "Help me articulate it", description: "I'll ask follow-up questions" }
+  ]
+)
+```
+
+#### Q5: Ideal Customer
+
+```
+AskUserQuestion(
+  question: "Do you have a clear picture of your ideal customer?",
+  options: [
+    { label: "Yes, I know exactly who", description: "I'll describe them" },
+    { label: "Somewhat, but not specific", description: "Help me define them" },
+    { label: "Not really", description: "We'll figure it out together" }
+  ]
+)
+```
+
+#### Q6: Customer Role
+
+```
+AskUserQuestion(
+  question: "What's your ideal customer's role?",
+  options: [
+    { label: "Founder / CEO", description: "Business owners and decision makers" },
+    { label: "Manager / Director", description: "Mid-level decision makers" },
+    { label: "Individual / Consumer", description: "B2C customers" },
+    { label: "Other", description: "Describe in text field" }
+  ]
+)
+```
+
+#### Q7: Company Size
+
+```
+AskUserQuestion(
+  question: "What size company do they work at?",
+  options: [
+    { label: "Solo / Freelancer", description: "Just themselves" },
+    { label: "Small team (2-10)", description: "Early stage" },
+    { label: "Growing (11-50)", description: "Scaling up" },
+    { label: "Larger (50+)", description: "Established company" }
+  ]
+)
+```
+
+#### Q8: Trigger Moment
+
+```
+AskUserQuestion(
+  question: "Do you know what makes customers start looking for your solution?",
+  options: [
+    { label: "Yes, there's a specific moment", description: "I'll describe the trigger" },
+    { label: "It varies", description: "I'll describe a few scenarios" },
+    { label: "Not sure", description: "We'll explore together" }
+  ]
+)
+```
+
+#### Q9: Problem #1
+
+```
+AskUserQuestion(
+  question: "Can you name the #1 problem your customers want solved?",
+  options: [
+    { label: "Yes, I can describe it", description: "Type it" },
+    { label: "I have a few problems", description: "We'll go through them one by one" },
+    { label: "Need help articulating", description: "I'll ask questions to uncover it" }
+  ]
+)
+```
+
+#### Q10: Problem Impact
+
+```
+AskUserQuestion(
+  question: "How does this problem affect them most?",
+  options: [
+    { label: "Costs them money", description: "Financial impact" },
+    { label: "Wastes their time", description: "Efficiency impact" },
+    { label: "Causes stress/frustration", description: "Emotional impact" },
+    { label: "All of the above", description: "Multiple impacts" }
+  ]
+)
+```
+
+#### Q11: Success Outcome
+
+```
+AskUserQuestion(
+  question: "What does success look like after working with you?",
+  options: [
+    { label: "I can describe the transformation", description: "Type it" },
+    { label: "Help me articulate it", description: "I'll ask specific questions" }
+  ]
+)
+```
+
+#### Q12: Timeline
+
+```
+AskUserQuestion(
+  question: "How quickly can customers expect results?",
+  options: [
+    { label: "Within days", description: "Very fast turnaround" },
+    { label: "Within 2-4 weeks", description: "Reasonable timeframe" },
+    { label: "Within 1-3 months", description: "Longer engagement" },
+    { label: "It varies significantly", description: "Depends on scope" }
+  ]
+)
+```
+
+#### Q13: Process
+
+```
+AskUserQuestion(
+  question: "Do you have a defined process for how you work?",
+  options: [
+    { label: "Yes, I have clear steps", description: "I'll list them" },
+    { label: "Somewhat defined", description: "We can refine it" },
+    { label: "Not really", description: "I can help create one or skip" }
+  ]
+)
+```
+
+#### Q14: Differentiator
+
+```
+AskUserQuestion(
+  question: "What's the #1 reason someone should choose you?",
+  options: [
+    { label: "I can explain it", description: "Type your answer" },
+    { label: "Help me figure it out", description: "I'll ask comparison questions" }
+  ]
+)
+```
+
+#### Q15: Social Proof
+
+```
+AskUserQuestion(
+  question: "What kind of proof do you have that this works?",
+  options: [
+    { label: "Testimonials or reviews", description: "I'll ask for 2-3 best ones" },
+    { label: "Results with specific numbers", description: "I'll ask for the stats" },
+    { label: "Client logos or case studies", description: "I'll ask which names" },
+    { label: "None yet", description: "We'll work without this section" }
+  ]
+)
+```
+
+#### Q16: Objections
+
+```
+AskUserQuestion(
+  question: "Do you know why people hesitate to buy?",
+  options: [
+    { label: "Yes, I hear common objections", description: "I'll ask you to describe them" },
+    { label: "Not specifically", description: "We'll skip the FAQ section" }
+  ]
+)
+```
+
+#### Q17: CTA Action
+
+```
+AskUserQuestion(
+  question: "What's the ONE action visitors should take?",
+  options: [
+    { label: "Book a call", description: "Schedule a meeting" },
+    { label: "Sign up", description: "Create an account or free trial" },
+    { label: "Buy directly", description: "Make a purchase" },
+    { label: "Request a quote", description: "Get pricing" }
+  ]
+)
+```
+
+#### Q18: Form Fields
+
+```
+AskUserQuestion(
+  question: "How much info do you need to collect?",
+  options: [
+    { label: "Just name and email", description: "Minimal friction" },
+    { label: "Add company name", description: "B2B qualification" },
+    { label: "Add phone number", description: "Direct contact" },
+    { label: "Custom fields needed", description: "I'll ask what" }
+  ]
+)
+```
+
+#### Q19: Form Destination
+
+```
+AskUserQuestion(
+  question: "Where should form submissions go?",
+  options: [
+    { label: "Email me directly", description: "To your inbox" },
+    { label: "My CRM", description: "HubSpot, Salesforce, etc." },
+    { label: "Calendly or booking link", description: "Direct scheduling" },
+    { label: "I'm not sure", description: "We'll figure it out" }
+  ]
+)
+```
 
 **After Q19, proceed to PHASE 1B — Design Inspiration.**
 

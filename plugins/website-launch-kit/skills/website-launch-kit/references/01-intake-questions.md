@@ -4,31 +4,29 @@ Deep conversation framework to understand the user's business and landing page r
 
 ---
 
-## Cowork UI Constraints
+## How to Ask Questions
 
-When using the Cowork question widget, these are the technical constraints:
+**IMPORTANT:** Always use the `AskUserQuestion` tool for intake questions. This shows a clean modal with selectable options.
 
-| What I CAN Control | What I CANNOT Control |
-|--------------------|-----------------------|
-| Question text | Layout order (options first, text field last) |
-| Option labels (2-4 required) | "Something else" placeholder text |
-| Option descriptions | Visual styling of the widget |
-| Number of options (min 2, max 4) | Adding custom text input fields |
+### Rules
 
-**Minimum setup:** 2 radio options + automatic "Something else" field at bottom.
+1. Ask **ONE question at a time** — never combine multiple questions
+2. Every question **MUST** use the `AskUserQuestion` tool
+3. Provide **2-4 clear options** per question
+4. **Wait** for the user's answer before asking the next question
+5. Do **NOT** ask questions as plain text in the chat
 
-**Best practice:** When the answer is likely to be typed (like a name), use plain text chat instead of the widget.
+### Tool Format
 
----
-
-## Core Principles
-
-1. **ONE question per message** - Never combine questions. Each message = 1 question only.
-2. **Branch from answers** - Every answer can spawn follow-up questions for more context
-3. **More questions = more context** - Don't rush. Go deep.
-4. **Their words = their copy** - Extract exact language for the landing page
-5. **Design questions from context** - No generic "pick a vibe" - base on their business
-6. **Keep design questions ≤ 5** - Minimal, specific, derived from their answers
+```
+AskUserQuestion(
+  question: "Your single question here",
+  options: [
+    { label: "Option 1", description: "Brief explanation" },
+    { label: "Option 2", description: "Brief explanation" },
+  ]
+)
+```
 
 ---
 
@@ -38,65 +36,47 @@ When using the Cowork question widget, these are the technical constraints:
 
 ---
 
-#### Q1.1 - Business Type
-
-**Question (Widget - 2 options required):**
-```
-What type of business is this?
-
-Option 1: "I'm selling a service"
-   → Consulting, agency, freelance, coaching, done-for-you
-
-Option 2: "I'm selling a product"
-   → SaaS, digital product, physical product, course
-```
+**Q1.1 - Business Type**
+- Question: `"Is this for a product or a service?"`
+- Options:
+  - `"Product"` → A physical or digital product people buy
+  - `"Service"` → You do work for clients (consulting, agency, freelance, etc.)
 
 ---
 
-#### Q1.2 - Business Name
-
-**Question (Plain text chat - single question):**
-```
-What's the name of your business?
-```
-
-**If they don't have one, follow up:**
-```
-No problem! What do you do in one sentence?
-```
-
-**Then:**
-```
-Based on that, here are 3 name options:
-1. [Option A]
-2. [Option B]
-3. [Option C]
-
-Which feels right?
-```
+**Q1.2 - Service Type** *(if Service selected)*
+- Question: `"What type of service do you provide?"`
+- Options:
+  - `"Consulting"` → Strategy and expert advice
+  - `"Agency / Done-for-you"` → You deliver finished work
+  - `"Coaching / Training"` → You teach or guide people
+  - `"Freelance / Creative"` → Design, writing, dev, etc.
 
 ---
 
-#### Q1.3 - What You Offer
-
-**Question (Plain text chat - single question):**
-```
-What's the main thing your customers get from you?
-```
-
-**If vague, follow up:**
-```
-Can you give me a specific example of what a customer walks away with?
-```
+**Q1.3 - Product Type** *(if Product selected)*
+- Question: `"What type of product is this?"`
+- Options:
+  - `"SaaS / Software"` → Online tool or app
+  - `"Digital Product"` → Course, template, ebook
+  - `"Physical Product"` → Tangible item you ship
+  - `"Membership / Community"` → Recurring access
 
 ---
 
-#### Q1.4 - Deliverables
+**Q1.4 - Business Name**
+- Question: `"What's the name of your business?"`
+- Options:
+  - `"I have a name"` → Type it in the text field
+  - `"I need help naming it"` → I'll suggest options based on your answers
 
-**Question (Plain text chat - single question):**
-```
-List the specific deliverables or features included.
-```
+---
+
+**Q1.5 - Main Offering**
+- Question: `"What's the main thing your customers get from you?"`
+- Options:
+  - `"I'll describe it"` → Type your answer
+  - `"Help me articulate it"` → I'll ask follow-up questions
 
 ---
 
@@ -104,53 +84,40 @@ List the specific deliverables or features included.
 
 ---
 
-#### Q2.1 - Who Is It For
-
-**Question (Plain text chat - single question):**
-```
-Who is your ideal customer?
-```
-
-**Follow-up if vague:**
-```
-What's their job title or role?
-```
-
-**Then:**
-```
-What industry are they in?
-```
-
-**Then:**
-```
-What size is their company?
-```
+**Q2.1 - Audience Clarity**
+- Question: `"Do you have a clear picture of your ideal customer?"`
+- Options:
+  - `"Yes, I know exactly who"` → I'll ask you to describe them
+  - `"Somewhat, but not specific"` → I'll help you define them
+  - `"Not really"` → We'll figure it out together
 
 ---
 
-#### Q2.2 - Their Frustration
-
-**Question (Plain text chat - single question):**
-```
-What's the biggest frustration they deal with daily?
-```
+**Q2.2 - Audience Role** *(if they know their audience)*
+- Question: `"What's your ideal customer's role?"`
+- Options:
+  - `"Founder / CEO"` → Business owners
+  - `"Manager / Director"` → Mid-level decision makers
+  - `"Individual / Consumer"` → B2C customers
+  - `"Other"` → Describe in text field
 
 ---
 
-#### Q2.3 - Who Is NOT For
+**Q2.3 - Company Size**
+- Question: `"What size company do they work at?"`
+- Options:
+  - `"Solo / Freelancer"` → Just themselves
+  - `"Small team (2-10)"` → Early stage
+  - `"Growing (11-50)"` → Scaling up
+  - `"Larger (50+)"` → Established company
 
-**Question (Widget - 2 options):**
-```
-Do you know who you'd turn away?
+---
 
-Option 1: "Yes, I know who's not a fit"
-Option 2: "Not really"
-```
-
-**If Option 1, follow up:**
-```
-Describe your worst-fit customer.
-```
+**Q2.4 - Bad Fit**
+- Question: `"Do you know who you'd turn away?"`
+- Options:
+  - `"Yes, I know who's not a fit"` → I'll ask you to describe
+  - `"Not really"` → We'll skip this
 
 ---
 
@@ -158,53 +125,31 @@ Describe your worst-fit customer.
 
 ---
 
-#### Q3.1 - Trigger Moment
-
-**Question (Plain text chat - single question):**
-```
-What moment makes your customers start looking for a solution like yours?
-```
-
-**Provide example only if they're stuck:**
-```
-For example: "They just lost a deal because their proposal looked unprofessional"
-```
+**Q3.1 - Trigger Awareness**
+- Question: `"Do you know what makes customers start looking for your solution?"`
+- Options:
+  - `"Yes, there's a specific moment"` → Describe it
+  - `"It varies"` → I'll ask follow-up questions
+  - `"Not sure"` → We'll explore together
 
 ---
 
-#### Q3.2 - Problem #1
-
-**Question (Plain text chat - single question):**
-```
-What's the #1 specific problem they want solved?
-```
-
----
-
-#### Q3.3 - Problem #1 Impact
-
-**Question (Plain text chat - single question):**
-```
-How does that problem affect them? (Time, money, stress?)
-```
+**Q3.2 - Problem Clarity**
+- Question: `"Can you name the #1 problem your customers want solved?"`
+- Options:
+  - `"Yes, I can describe it"` → Type it
+  - `"I have a few problems"` → We'll go through them one by one
+  - `"Need help articulating"` → I'll ask questions to uncover it
 
 ---
 
-#### Q3.4 - Problem #2
-
-**Question (Plain text chat - single question):**
-```
-What's another big problem they face?
-```
-
----
-
-#### Q3.5 - Problem #3
-
-**Question (Plain text chat - single question):**
-```
-One more problem they deal with?
-```
+**Q3.3 - Problem Impact**
+- Question: `"How does this problem affect them most?"`
+- Options:
+  - `"Costs them money"` → Financial impact
+  - `"Wastes their time"` → Efficiency impact
+  - `"Causes stress/frustration"` → Emotional impact
+  - `"All of the above"` → Multiple impacts
 
 ---
 
@@ -212,47 +157,30 @@ One more problem they deal with?
 
 ---
 
-#### Q4.1 - The Outcome
-
-**Question (Plain text chat - single question):**
-```
-What does their life or business look like after working with you?
-```
-
----
-
-#### Q4.2 - Timeline
-
-**Question (Widget - 4 options):**
-```
-How quickly can they expect results?
-
-Option 1: "Within days"
-Option 2: "Within 2-4 weeks"
-Option 3: "Within 1-3 months"
-Option 4: "It varies"
-```
+**Q4.1 - Outcome Clarity**
+- Question: `"What does success look like after working with you?"`
+- Options:
+  - `"I can describe the transformation"` → Type it
+  - `"Help me articulate it"` → I'll ask specific questions
 
 ---
 
-#### Q4.3 - Process Exists?
-
-**Question (Widget - 2 options):**
-```
-Do you have a defined process for how you work?
-
-Option 1: "Yes, I have clear steps"
-Option 2: "Not formally defined"
-```
+**Q4.2 - Timeline**
+- Question: `"How quickly can customers expect results?"`
+- Options:
+  - `"Within days"` → Very fast
+  - `"Within 2-4 weeks"` → Reasonable timeframe
+  - `"Within 1-3 months"` → Longer engagement
+  - `"It varies significantly"` → Depends on scope
 
 ---
 
-#### Q4.4 - Process Steps
-
-**If yes to Q4.3 (Plain text chat - single question):**
-```
-List your process in 3-5 short steps.
-```
+**Q4.3 - Process Exists**
+- Question: `"Do you have a defined process for how you work?"`
+- Options:
+  - `"Yes, I have clear steps"` → I'll ask you to list them
+  - `"Somewhat defined"` → We can refine it
+  - `"Not really"` → I can help create one or skip this section
 
 ---
 
@@ -260,39 +188,19 @@ List your process in 3-5 short steps.
 
 ---
 
-#### Q5.1 - Failed Alternatives
-
-**Question (Plain text chat - single question):**
-```
-What have your customers tried before that didn't work?
-```
-
----
-
-#### Q5.2 - Differentiator #1
-
-**Question (Plain text chat - single question):**
-```
-What's the #1 reason someone should choose you?
-```
+**Q5.1 - Competitive Awareness**
+- Question: `"Do you know what customers have tried before finding you?"`
+- Options:
+  - `"Yes, I know their failed attempts"` → Describe them
+  - `"Not specifically"` → We'll skip this
 
 ---
 
-#### Q5.3 - Differentiator #2
-
-**Question (Plain text chat - single question):**
-```
-What's another reason?
-```
-
----
-
-#### Q5.4 - Differentiator #3
-
-**Question (Plain text chat - single question):**
-```
-One more reason?
-```
+**Q5.2 - Differentiator**
+- Question: `"What's the #1 reason someone should choose you?"`
+- Options:
+  - `"I can explain it"` → Type your answer
+  - `"Help me figure it out"` → I'll ask comparison questions
 
 ---
 
@@ -300,162 +208,79 @@ One more reason?
 
 ---
 
-#### Q6.1 - Proof Type
-
-**Question (Widget - 3 options):**
-```
-What kind of proof do you have?
-
-Option 1: "Testimonials or reviews"
-Option 2: "Results with specific numbers"
-Option 3: "Client logos or case studies"
-```
+**Q6.1 - Proof Type**
+- Question: `"What kind of proof do you have that this works?"`
+- Options:
+  - `"Testimonials or reviews"` → I'll ask for 2-3 best ones
+  - `"Results with specific numbers"` → I'll ask for the stats
+  - `"Client logos or case studies"` → I'll ask which names
+  - `"None yet"` → We'll work without this section
 
 ---
 
-#### Q6.2 - Testimonials
-
-**If Option 1 (Plain text chat - single question):**
-```
-Share your best testimonial. Copy and paste it exactly.
-```
-
-**Then:**
-```
-Got another good one?
-```
+### PHASE 7: Objections
 
 ---
 
-#### Q6.3 - Numbers
-
-**If Option 2 (Plain text chat - single question):**
-```
-What specific result can you claim with numbers?
-```
-
----
-
-### PHASE 7: Objections & Scope
+**Q7.1 - Common Objections**
+- Question: `"Do you know why people hesitate to buy?"`
+- Options:
+  - `"Yes, I hear common objections"` → Describe them
+  - `"Not specifically"` → We'll skip this
 
 ---
 
-#### Q7.1 - Top Objection
-
-**Question (Plain text chat - single question):**
-```
-What's the #1 reason people hesitate to buy from you?
-```
-
----
-
-#### Q7.2 - How You Handle It
-
-**Question (Plain text chat - single question):**
-```
-How do you usually respond to that?
-```
-
----
-
-#### Q7.3 - Other Objections
-
-**Question (Plain text chat - single question):**
-```
-Any other common concerns they have?
-```
-
----
-
-#### Q7.4 - What's Included
-
-**Question (Plain text chat - single question):**
-```
-What's explicitly included in your offering?
-```
-
----
-
-#### Q7.5 - What's NOT Included
-
-**Question (Plain text chat - single question):**
-```
-What's NOT included?
-```
+**Q7.2 - Scope Clarity**
+- Question: `"Is it clear what's included vs not included?"`
+- Options:
+  - `"Yes, I can list both"` → I'll ask separately
+  - `"Included is clear, exclusions not"` → I'll help define
+  - `"Needs work"` → We'll figure it out
 
 ---
 
 ### PHASE 8: Design Direction
 
-**Maximum 5 design questions. Base them on their business context.**
+---
+
+**Q8.1 - Inspiration**
+- Question: `"Do you have a website that captures the vibe you want?"`
+- Options:
+  - `"Yes, I have one"` → Paste the link
+  - `"I need to browse"` → Check framer.com/marketplace or awwwards.com
+  - `"No preference"` → I'll suggest based on your business
 
 ---
 
-#### Q8.1 - Inspiration Website
-
-**Question (Plain text chat - single question):**
-```
-Find ONE website that captures the vibe you want.
-
-Browse here for ideas:
-• https://www.framer.com/marketplace/templates/
-• https://www.awwwards.com/
-
-Paste the link when you find one.
-```
+**Q8.2 - Design Match** *(after they share a link)*
+- Question: `"How closely should we match that site?"`
+- Options:
+  - `"Use it as a close reference"` → Match the feel closely
+  - `"Just take inspiration"` → Use general direction only
 
 ---
 
-#### Q8.2 - What They Like
-
-**After they share (Plain text chat - single question):**
-```
-What specifically drew you to that site?
-```
-
----
-
-#### Q8.3 - Match or Inspire
-
-**Question (Widget - 2 options):**
-```
-How closely should we match it?
-
-Option 1: "Use it as a close reference"
-Option 2: "Just take inspiration"
-```
+**Q8.3 - Design Feel** *(for Services)*
+- Question: `"Should the design feel premium or approachable?"`
+- Options:
+  - `"Premium and exclusive"` → Dark theme, elegant, refined
+  - `"Approachable and trustworthy"` → Clean, bright, warm
 
 ---
 
-#### Q8.4 - Design Feel (Dynamic - based on business type)
-
-**For SERVICE businesses:**
-```
-Should the design feel premium and exclusive, or approachable and trustworthy?
-
-Option 1: "Premium and exclusive"
-Option 2: "Approachable and trustworthy"
-```
-
-**For PRODUCT businesses:**
-```
-Should the design feel modern and cutting-edge, or simple and focused?
-
-Option 1: "Modern and cutting-edge"
-Option 2: "Simple and focused"
-```
+**Q8.4 - Design Feel** *(for Products)*
+- Question: `"Should the design feel cutting-edge or simple?"`
+- Options:
+  - `"Modern and cutting-edge"` → Bold animations, gradients
+  - `"Simple and focused"` → Minimal, let product speak
 
 ---
 
-#### Q8.5 - Animation Level
-
-**Question (Widget - 2 options):**
-```
-How much animation do you want?
-
-Option 1: "Keep it subtle"
-Option 2: "Make it dynamic"
-```
+**Q8.5 - Animation Level**
+- Question: `"How much animation do you want?"`
+- Options:
+  - `"Keep it subtle"` → Smooth scroll reveals, gentle hovers
+  - `"Make it dynamic"` → Bold entrances, interactive elements
 
 ---
 
@@ -463,35 +288,33 @@ Option 2: "Make it dynamic"
 
 ---
 
-#### Q9.1 - Desired Action
-
-**Question (Widget - 4 options):**
-```
-What's the ONE action visitors should take?
-
-Option 1: "Book a call"
-Option 2: "Sign up"
-Option 3: "Buy directly"
-Option 4: "Request a quote"
-```
+**Q9.1 - Desired Action**
+- Question: `"What's the ONE action visitors should take?"`
+- Options:
+  - `"Book a call"` → Schedule a meeting
+  - `"Sign up"` → Create an account
+  - `"Buy directly"` → Make a purchase
+  - `"Request a quote"` → Get pricing
 
 ---
 
-#### Q9.2 - Form Fields
-
-**Question (Plain text chat - single question):**
-```
-What info do you need to collect? (Name, email, phone, company, etc.)
-```
+**Q9.2 - Form Complexity**
+- Question: `"How much info do you need to collect?"`
+- Options:
+  - `"Just name and email"` → Minimal friction
+  - `"Add company name"` → B2B qualification
+  - `"Add phone number"` → Direct contact
+  - `"Custom fields needed"` → I'll ask what
 
 ---
 
-#### Q9.3 - Form Destination
-
-**Question (Plain text chat - single question):**
-```
-Where should form submissions go?
-```
+**Q9.3 - Form Destination**
+- Question: `"Where should form submissions go?"`
+- Options:
+  - `"Email me directly"` → To your inbox
+  - `"My CRM"` → HubSpot, Salesforce, etc.
+  - `"Calendly or booking link"` → Direct scheduling
+  - `"I'm not sure"` → We'll figure it out
 
 ---
 
@@ -527,9 +350,6 @@ Here's everything I've gathered:
 **PROOF**
 - [summary]
 
-**OBJECTIONS**
-- [concerns + responses]
-
 **DESIGN**
 - Inspiration: [URL]
 - Feel: [premium/approachable/modern/simple]
@@ -537,7 +357,7 @@ Here's everything I've gathered:
 
 **CTA**
 - Action: [book/signup/buy/quote]
-- Form: [fields]
+- Form: [fields + destination]
 
 ---
 
@@ -546,30 +366,16 @@ Anything to add or correct?
 
 ---
 
-## Key Rule Reminder
+## Key Rules Reminder
 
-**NEVER ask multiple questions in one message.**
+### ✅ DO
+- Use `AskUserQuestion` tool for every question
+- Ask ONE question per modal
+- Provide 2-4 clear options
+- Wait for answer before next question
 
-❌ Wrong:
-```
-What's the name of your business, and what service do you provide? 
-Give me the full picture: who do you help, what do you actually do for them, 
-and what do they walk away with?
-```
-
-✅ Right:
-```
-What's the name of your business?
-```
-
-Then after they answer:
-```
-What's the main thing your customers get from you?
-```
-
-Then after they answer:
-```
-Who is your ideal customer?
-```
-
-**One question. Wait for answer. Then next question.**
+### ❌ DON'T
+- Ask questions as plain chat text
+- Combine multiple questions in one modal
+- Provide more than 4 options
+- Skip waiting for answers

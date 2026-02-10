@@ -79,6 +79,10 @@
         "excalidraw": {
           "displayName": "Excalidraw",
           "summary": "Create visual presentations, slide decks, and diagrams"
+        },
+        "animate-posts": {
+          "displayName": "Animate Posts",
+          "summary": "Convert static infographics into 10-second animated GIFs using Remotion"
         }
       }
     },

@@ -80,7 +80,7 @@ export function getAllRatioConfigurations() {
  */
 export function calculateAspectRatio(width, height) {
   const ratio = width / height;
-  const toleran ce = 0.1;
+  const tolerance = 0.1;
 
   // Check against known ratios
   const ratioChecks = {

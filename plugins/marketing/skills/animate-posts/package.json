@@ -27,9 +27,7 @@
     "@remotion/gif": "^4.0.0",
     "@remotion/lambda": "^4.0.0",
     "sharp": "^0.33.0",
-    "node-canvas": "^2.11.2",
-    "tesseract.js": "^5.0.0",
-    "gifski": "^3.0.0"
+    "tesseract.js": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^8.0.0",
